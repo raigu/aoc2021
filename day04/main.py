@@ -1,12 +1,11 @@
 class Board:
 
     @classmethod
-    def from_str(cls, lines: list) -> 'Board':
+    def from_str(cls, lines: list[str]) -> 'Board':
         r"""
         >>> str(Board.from_str(["1 0", "10 20"]))
-        '   1    0\n   10   20\n'
+        '  1    0 \n 10   20 '
         """
-
         rows = []
         for line in lines:
             row = [int(n) for n in line.split()]
@@ -15,7 +14,7 @@ class Board:
         return cls(rows)
 
     def draw(self, number: int) -> None:
-        self.numbers.append(number)
+        self.drawn.append(number)
 
     def winner(self) -> bool:
         """
@@ -26,54 +25,49 @@ class Board:
         >>> b=Board.from_str(["1 2", "3 4"]); b.winner()
         False
         """
-        # row wins:
+
+        drawn = set(self.drawn)
+
+        # rows checking
         for row in self.rows:
-            w = True
-            for n in row:
-                if n not in self.numbers:
-                    w = False
-                    break
-            if w:
+            if drawn.issuperset(set(row)):
                 return True
 
+        # columns checking
         for c in range(len(self.rows[0])):
-            w = True
-            for r in self.rows:
-                if r[c] not in self.numbers:
-                    w = False
-                    break
-            if w:
+            col = [r[c] for r in self.rows]
+            if drawn.issuperset(set(col)):
                 return True
 
         return False
 
-    def unmarked(self) -> list:
+    def numbers(self) -> list[int]:
         ret = []
         for row in self.rows:
-            for col in row:
-                if col not in self.numbers:
-                    ret.append(col)
+            ret += row
         return ret
 
-    def __str__(self):
+    def unmarked(self) -> list[int]:
+        """
+        >>> b=Board.from_str(["1", "2"]); b.draw(1); b.unmarked()
+        [2]
+        """
+        return list(set(self.numbers()) - set(self.drawn))
+
+    def __str__(self) -> str:
         lines = []
-        for r in self.rows:
-            line = []
-            for c in r:
-                if c in self.numbers:
-                    c = f'[{c}]'
-                else:
-                    c = str(c)
-                line.append(str(c).rjust(4))
-            lines.append(" ".join(line) + "\n")
-        return " ".join(lines)
+        for row in self.rows:
+            line = [f'[{cell}]' if cell in self.drawn else f'{cell} ' for cell in row]
+            line = [cell.rjust(4) for cell in line]
+            lines.append(" ".join(line))
+        return "\n".join(lines)
 
-    def __init__(self, rows: list):
+    def __init__(self, rows: list[list[int]]):
         self.rows = rows
-        self.numbers = []
+        self.drawn = []
 
 
-def part1(boards, numbers):
+def part1(boards: list[Board], numbers: list[int]):
     for n in numbers:
         for b in boards:
             b.draw(n)
@@ -85,25 +79,23 @@ def part1(boards, numbers):
     return -1
 
 
-def part2(boards, numbers):
-    l = len(boards)
-    winners = []
+def part2(boards: list[Board], numbers: list[int]):
     for n in numbers:
-        for (i, b) in enumerate(boards):
-            if i not in winners:
-                b.draw(n)
-                if b.winner():
-                    winners.append(i)
+        for board in list(boards):
+            board.draw(n)
+            if board.winner():
+                boards.remove(board)
 
-                if len(winners) == l:
-                    print("LAST after", n)
-                    print(b)
-                    return sum(b.unmarked()) * n
+            if len(boards) == 0:
+                print("LAST after", n)
+                print(board)
+                return sum(board.unmarked()) * n
 
     return -1
 
 
 if __name__ == '__main__':
+
     with open('input') as f:
         lines = f.readlines()
 
@@ -121,7 +113,7 @@ if __name__ == '__main__':
     '''
     for (i, board) in enumerate(boards):
         print("Board:", i)
-        print(str(board))
+        print(board)
     '''
 
     print('Part 1 answer: ', part1(boards, numbers))
