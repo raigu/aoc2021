@@ -1,6 +1,12 @@
+from enum import Enum
+
 from day05.grid import Grid
 from day05.point import Point
 
+class Direction(Enum):
+    HORIZONTAL = 0
+    VERTICAL = 1
+    DIAGONAL = 2
 
 def part1(line_of_vents) -> Grid:
     grid = Grid()
@@ -16,18 +22,18 @@ def part1(line_of_vents) -> Grid:
     return grid
 
 
-def part2(line_of_vents) -> Grid:
+def draw_lines(line_of_vents, directions: set[Direction]) -> Grid:
     grid = Grid()
     for b, e in line_of_vents:
-        if b[0] == e[0]:
+        if Direction.HORIZONTAL in directions and b[0] == e[0]:
             for y in range(min(b[1], e[1]), max(b[1], e[1]) + 1):
                 grid.add(Point(b[0], y))
 
-        if b[1] == e[1]:
+        if Direction.VERTICAL in directions and b[1] == e[1]:
             for x in range(min(b[0], e[0]), max(b[0], e[0]) + 1):
                 grid.add(Point(x, b[1]))
 
-        if abs(b[0] - e[0]) == abs(b[1] - e[1]):
+        if Direction.DIAGONAL in directions and abs(b[0] - e[0]) == abs(b[1] - e[1]):
             r = range(0, abs(b[0] - e[0]) + 1)
             xsign = 1 if b[0] < e[0] else -1
             ysign = 1 if b[1] < e[1] else -1
@@ -62,4 +68,6 @@ if __name__ == '__main__':
         lines_of_vents.append([b, e])
 
     print('Part 1: ', number_of_insersecting_points(part1(lines_of_vents)))
-    print('Part 2: ', number_of_insersecting_points(part2(lines_of_vents)))
+
+    grid = draw_lines(lines_of_vents, {Direction.HORIZONTAL, Direction.VERTICAL, Direction.DIAGONAL})
+    print('Part 2: ', number_of_insersecting_points(grid))
