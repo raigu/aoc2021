@@ -15,9 +15,9 @@ if __name__ == '__main__':
         lines_of_vents.append([b, e])
 
     part1 = Grid()
-    part1.draw_lines(lines_of_vents, {Direction.HORIZONTAL, Direction.VERTICAL})
+    part1.add_lines(lines_of_vents, {Direction.HORIZONTAL, Direction.VERTICAL})
     print('Part 1: ', part1.number_of_intersecting_points())
 
     part2 = Grid()
-    part2.draw_lines(lines_of_vents, {Direction.HORIZONTAL, Direction.VERTICAL, Direction.DIAGONAL})
+    part2.add_lines(lines_of_vents, {Direction.HORIZONTAL, Direction.VERTICAL, Direction.DIAGONAL})
     print('Part 2: ', part2.number_of_intersecting_points())
