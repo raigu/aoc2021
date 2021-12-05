@@ -1,9 +1,8 @@
-from day05.point import Point
 from day05.grid import Grid
+from day05.point import Point
 
-def part1(line_of_vents):
-    answer = 0
 
+def part1(line_of_vents) -> Grid:
     grid = Grid()
     for (b, e) in line_of_vents:
         if b[0] == e[0]:
@@ -14,33 +13,33 @@ def part1(line_of_vents):
             for x in range(min(b[0], e[0]), max(b[0], e[0]) + 1):
                 grid.add(Point(x, b[1]))
 
-    for point in grid.points():
-        if grid[point] > 1:
-            answer += 1
-    return answer
+    return grid
 
 
-def part2(line_of_vents):
-    answer = 0
-
+def part2(line_of_vents) -> Grid:
     grid = Grid()
-    for b,e in line_of_vents:
+    for b, e in line_of_vents:
         if b[0] == e[0]:
-            for y in range(min(b[1], e[1]), max(b[1], e[1])+1):
+            for y in range(min(b[1], e[1]), max(b[1], e[1]) + 1):
                 grid.add(Point(b[0], y))
 
         if b[1] == e[1]:
-            for x in range(min(b[0], e[0]), max(b[0], e[0])+1):
+            for x in range(min(b[0], e[0]), max(b[0], e[0]) + 1):
                 grid.add(Point(x, b[1]))
 
         if abs(b[0] - e[0]) == abs(b[1] - e[1]):
-            r = range(0, abs(b[0] - e[0])+1)
+            r = range(0, abs(b[0] - e[0]) + 1)
             xsign = 1 if b[0] < e[0] else -1
             ysign = 1 if b[1] < e[1] else -1
 
             for i in r:
                 grid.add(Point(b[0] + xsign * i, b[1] + ysign * i))
 
+    return grid
+
+
+def number_of_insersecting_points(grid: Grid) -> int:
+    answer = 0
     for point in grid.points():
         if grid[point] > 1:
             answer += 1
@@ -60,7 +59,7 @@ if __name__ == '__main__':
         e = e.split(',')
         e = Point(int(e[0]), int(e[1]))
 
-        lines_of_vents.append([b,e])
+        lines_of_vents.append([b, e])
 
-    print('Part 1: ', part1(lines_of_vents))
-    print('Part 2: ', part2(lines_of_vents))
+    print('Part 1: ', number_of_insersecting_points(part1(lines_of_vents)))
+    print('Part 2: ', number_of_insersecting_points(part2(lines_of_vents)))
