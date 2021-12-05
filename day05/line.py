@@ -28,8 +28,32 @@ class Line:
         self._end = end
 
     def points(self) -> list[Point]:
+        """
+        Return points of horizontal line
+        >>> Line(Point(0,0), Point(2,0)).points()
+        [Point(0,0), Point(1,0), Point(2,0)]
+
+        Return points of vertical line
+        >>> Line(Point(0,0), Point(2,0)).points()
+        [Point(0,0), Point(1,0), Point(2,0)]
+
+        Return points of diagonal line
+        >>> Line(Point(0,0), Point(2,2)).points()
+        [Point(0,0), Point(1,1), Point(2,2)]
+        >>> Line(Point(0,2), Point(2,0)).points()
+        [Point(0,2), Point(1,1), Point(2,0)]
+        >>> Line(Point(2,0), Point(0,2)).points()
+        [Point(2,0), Point(1,1), Point(0,2)]
+        >>> Line(Point(2,2), Point(0,0)).points()
+        [Point(2,2), Point(1,1), Point(0,0)]
+
+        Handles one unit long lines
+        >>> Line(Point(0,0), Point(0,0)).points()
+        [Point(0,0)]
+        """
+
         points = []
-        
+
         if self.direction() == Direction.HORIZONTAL:
             for y in range(min(self._begin[1], self._end[1]), max(self._begin[1], self._end[1]) + 1):
                 points.append(Point(self._begin[0], y))
