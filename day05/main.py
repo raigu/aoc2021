@@ -44,7 +44,7 @@ def draw_lines(line_of_vents, directions: set[Direction]) -> Grid:
     return grid
 
 
-def number_of_insersecting_points(grid: Grid) -> int:
+def number_of_intersecting_points(grid: Grid) -> int:
     answer = 0
     for point in grid.points():
         if grid[point] > 1:
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
         lines_of_vents.append([b, e])
 
-    print('Part 1: ', number_of_insersecting_points(part1(lines_of_vents)))
+    print('Part 1: ', number_of_intersecting_points(part1(lines_of_vents)))
 
     grid = draw_lines(lines_of_vents, {Direction.HORIZONTAL, Direction.VERTICAL, Direction.DIAGONAL})
-    print('Part 2: ', number_of_insersecting_points(grid))
+    print('Part 2: ', number_of_intersecting_points(grid))
