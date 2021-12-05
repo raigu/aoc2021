@@ -41,20 +41,3 @@ class Point:
             equal = self._coordinates[i] == other._coordinates[i]
 
         return equal
-
-    def neighbors(self):
-        """
-        >>> Point(2).neighbors()
-        [Point(1), Point(3)]
-        >>> Point(1,1).neighbors()
-        [Point(0,0), Point(0,1), Point(0,2), Point(1,0), Point(1,2), Point(2,0), Point(2,1), Point(2,2)]
-        """
-        neighbors = []
-        for shift in product([-1, 0, 1], repeat=len(self._coordinates)):
-            coordinates = []
-            for i, c in enumerate(self._coordinates):
-                coordinates.append(c + shift[i])
-            point = Point(*coordinates)
-            if point != self:
-                neighbors.append(Point(*coordinates))
-        return neighbors
