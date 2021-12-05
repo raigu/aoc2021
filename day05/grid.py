@@ -20,12 +20,6 @@ class Grid:
 
         self._grid[point] += 1
 
-    def __getitem__(self, point: Point) -> int:
-        return self._grid[point]
-
-    def points(self) -> list[Point]:
-        return list(self._grid.keys())
-
     def draw_lines(self, lines, directions: set[Direction]) -> None:
         for b, e in lines:
             if Direction.HORIZONTAL in directions and b[0] == e[0]:
@@ -46,7 +40,8 @@ class Grid:
 
     def number_of_intersecting_points(self) -> int:
         answer = 0
-        for point in self.points():
+        points = list(self._grid.keys())
+        for point in points:
             if self._grid[point] > 1:
                 answer += 1
         return answer
