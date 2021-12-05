@@ -1,27 +1,22 @@
-def part1(data):
+from day05.point import Point
+
+
+
+def part1(line_of_vents):
     answer = 0
 
     # Solution here
 
     grid = {}
-
-    for line in data:
-        (b, e) = line.split(' -> ')
-        b = b.split(',')
-
-        b = [int(b[0]), int(b[1])]
-
-        e = e.split(',')
-        e = [int(e[0]), int(e[1])]
-
+    for (b,e) in line_of_vents:
         points = []
         if b[0] == e[0]:
             for y in range(min(b[1], e[1]) + 1, max(b[1], e[1])):
-                points.append([b[0], y])
+                points.append(Point(b[0], y))
 
         if b[1] == e[1]:
             for x in range(min(b[0], e[0]) + 1, max(b[0], e[0])):
-                points.append([x, b[1]])
+                points.append(Point(x, b[1]))
 
         if len(points) > 0:
             if b not in points:
@@ -30,11 +25,10 @@ def part1(data):
                 points.append(e)
 
         for point in points:
-            key = f"{point[0]},{point[1]}"
-            if key not in grid:
-                grid[key] = 1
+            if point not in grid:
+                grid[point] = 1
             else:
-                grid[key] += 1
+                grid[point] += 1
 
     for v in grid.values():
         if v > 1:
@@ -42,21 +36,14 @@ def part1(data):
     return answer
 
 
-def part2(data):
+def part2(line_of_vents):
     answer = 0
 
     # Solution here
 
     grid = {}
 
-    for line in data:
-        (b, e) = line.split(' -> ')
-        b = b.split(',')
-
-        b = [int(b[0]), int(b[1])]
-
-        e = e.split(',')
-        e = [int(e[0]), int(e[1])]
+    for b,e in line_of_vents:
 
         points = []
         if b[0] == e[0]:
@@ -109,5 +96,17 @@ def part2(data):
 if __name__ == '__main__':
     with open('input') as f:
         lines = f.readlines()
-    print('Part 1: ', part1(lines))
-    print('Part 2: ', part2(lines))
+
+    lines_of_vents = []
+    for line in lines:
+        (b, e) = line.split(' -> ')
+        b = b.split(',')
+        b = Point(int(b[0]), int(b[1]))
+
+        e = e.split(',')
+        e = Point(int(e[0]), int(e[1]))
+
+        lines_of_vents.append([b,e])
+
+    print('Part 1: ', part1(lines_of_vents))
+    print('Part 2: ', part2(lines_of_vents))
