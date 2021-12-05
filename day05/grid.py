@@ -1,12 +1,5 @@
-from enum import Enum
-
+from day05.line import Line
 from day05.point import Point
-
-
-class Direction(Enum):
-    HORIZONTAL = 0
-    VERTICAL = 1
-    DIAGONAL = 2
 
 
 class Grid:
@@ -14,29 +7,15 @@ class Grid:
     def __init__(self) -> None:
         self._grid = {}
 
-    def add_point(self, point: Point):
+    def add_point(self, point: Point) -> None:
         if point not in self._grid:
             self._grid[point] = 0
 
         self._grid[point] += 1
 
-    def add_lines(self, lines, directions: set[Direction]) -> None:
-        for b, e in lines:
-            if Direction.HORIZONTAL in directions and b[0] == e[0]:
-                for y in range(min(b[1], e[1]), max(b[1], e[1]) + 1):
-                    self.add_point(Point(b[0], y))
-
-            if Direction.VERTICAL in directions and b[1] == e[1]:
-                for x in range(min(b[0], e[0]), max(b[0], e[0]) + 1):
-                    self.add_point(Point(x, b[1]))
-
-            if Direction.DIAGONAL in directions and abs(b[0] - e[0]) == abs(b[1] - e[1]):
-                r = range(0, abs(b[0] - e[0]) + 1)
-                xsign = 1 if b[0] < e[0] else -1
-                ysign = 1 if b[1] < e[1] else -1
-
-                for i in r:
-                    self.add_point(Point(b[0] + xsign * i, b[1] + ysign * i))
+    def add_line(self, line: Line) -> None:
+        for point in line.points():
+            self.add_point(point)
 
     def number_of_intersecting_points(self) -> int:
         answer = 0
