@@ -1,37 +1,21 @@
 from day05.point import Point
-
-
+from day05.grid import Grid
 
 def part1(line_of_vents):
     answer = 0
 
-    # Solution here
-
-    grid = {}
-    for (b,e) in line_of_vents:
-        points = []
+    grid = Grid()
+    for (b, e) in line_of_vents:
         if b[0] == e[0]:
-            for y in range(min(b[1], e[1]) + 1, max(b[1], e[1])):
-                points.append(Point(b[0], y))
+            for y in range(min(b[1], e[1]), max(b[1], e[1]) + 1):
+                grid.add(Point(b[0], y))
 
         if b[1] == e[1]:
-            for x in range(min(b[0], e[0]) + 1, max(b[0], e[0])):
-                points.append(Point(x, b[1]))
+            for x in range(min(b[0], e[0]), max(b[0], e[0]) + 1):
+                grid.add(Point(x, b[1]))
 
-        if len(points) > 0:
-            if b not in points:
-                points.append(b)
-            if e not in points:
-                points.append(e)
-
-        for point in points:
-            if point not in grid:
-                grid[point] = 1
-            else:
-                grid[point] += 1
-
-    for v in grid.values():
-        if v > 1:
+    for point in grid.points():
+        if grid[point] > 1:
             answer += 1
     return answer
 
@@ -39,56 +23,26 @@ def part1(line_of_vents):
 def part2(line_of_vents):
     answer = 0
 
-    # Solution here
-
-    grid = {}
-
+    grid = Grid()
     for b,e in line_of_vents:
-
-        points = []
         if b[0] == e[0]:
-            points.append(b)
-            for y in range(min(b[1], e[1]) + 1, max(b[1], e[1])):
-                points.append([b[0], y])
-            points.append(e)
+            for y in range(min(b[1], e[1]), max(b[1], e[1])+1):
+                grid.add(Point(b[0], y))
 
         if b[1] == e[1]:
-            points.append(b)
-            for x in range(min(b[0], e[0]) + 1, max(b[0], e[0])):
-                points.append([x, b[1]])
-            points.append(e)
+            for x in range(min(b[0], e[0]), max(b[0], e[0])+1):
+                grid.add(Point(x, b[1]))
 
         if abs(b[0] - e[0]) == abs(b[1] - e[1]):
-            points.append(b)
-
-            r = range(1, abs(b[0] - e[0]))
+            r = range(0, abs(b[0] - e[0])+1)
             xsign = 1 if b[0] < e[0] else -1
             ysign = 1 if b[1] < e[1] else -1
 
             for i in r:
-                points.append([b[0] + xsign * i, b[1] + ysign * i])
+                grid.add(Point(b[0] + xsign * i, b[1] + ysign * i))
 
-            points.append(e)
-
-        for point in points:
-            key = f"{point[0]},{point[1]}"
-            if key not in grid:
-                grid[key] = 1
-            else:
-                grid[key] += 1
-
-        # print(points)
-        # print(grid)
-
-    '''
-    vs = grid.keys()
-    sorted(vs)
-    for k in vs:
-        print(k, ":", grid[k])
-    '''
-
-    for v in grid.values():
-        if v > 1:
+    for point in grid.points():
+        if grid[point] > 1:
             answer += 1
     return answer
 
