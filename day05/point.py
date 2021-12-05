@@ -1,6 +1,3 @@
-from itertools import product
-
-
 class Point:
     """I am a point in n-dimensional space. """
     def __init__(self, *coordinates):

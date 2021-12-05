@@ -72,4 +72,4 @@ class Line:
             for i in r:
                 points.append(Point(self._begin[0] + xsign * i, self._begin[1] + ysign * i))
 
-        return points 
+        return points
