@@ -47,11 +47,8 @@ if __name__ == '__main__':
     lines_of_vents = []
     for line in lines:
         (b, e) = line.split(' -> ')
-        b = b.split(',')
-        b = Point(int(b[0]), int(b[1]))
-
-        e = e.split(',')
-        e = Point(int(e[0]), int(e[1]))
+        b = Point(*map(int, b.split(',')))
+        e = Point(*map(int, e.split(',')))
 
         lines_of_vents.append([b, e])
 
