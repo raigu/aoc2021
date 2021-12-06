@@ -71,13 +71,11 @@ def part2(data, days):
     for day in range(days):
         fishes = dict(new)
         new = {}
-        for fish in fishes:
-            count = fishes[fish]
+        for fish, count in fishes.items():
             fish -= 1
             if fish < 0:
                 fish = 6
                 new[8] = new.get(8, 0) + count
-
             new[fish] = new.get(fish, 0) + count
 
     return sum(new.values())
