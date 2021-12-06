@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+
 def part1(data,days):
     """
     >>> part1([0], 1)
@@ -15,8 +18,6 @@ def part1(data,days):
     >>> part1([3,4,3,1,2],80)
     5934
     """
-    answer = 0
-
     new = list(data)
     for day in range(days):
         fishes = list(new)
@@ -63,22 +64,21 @@ def part2(data, days):
     >>> part2([3,4,3,1,2],80)
     5934
     """
-    new = {}
+    next_day = defaultdict(int)
     for fish in data:
-        count = new.get(fish, 0)
-        new[fish] = count + 1
+        next_day[fish] += 1
 
     for day in range(days):
-        fishes = dict(new)
-        new = {}
-        for fish, count in fishes.items():
+        current_day = dict(next_day)
+        next_day = defaultdict(int)
+        for fish, count in current_day.items():
             fish -= 1
             if fish < 0:
                 fish = 6
-                new[8] = new.get(8, 0) + count
-            new[fish] = new.get(fish, 0) + count
+                next_day[8] += count
+            next_day[fish] += count
 
-    return sum(new.values())
+    return sum(next_day.values())
 
 
 if __name__ == '__main__':
