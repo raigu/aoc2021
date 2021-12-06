@@ -1,11 +1,19 @@
 def part1(data,days):
     """
+    >>> part1([0], 1)
+    2
+    >>> part1([0], 7)
+    2
+    >>> part1([0], 1)
+    2
+    >>> part1([1], 1)
+    1
+    >>> part1([3,4,3,1,2], 2)
+    6
     >>> part1([3,4,3,1,2], 18)
     26
     >>> part1([3,4,3,1,2],80)
     5934
-    >>> part1([3,4,3,1,2],256)
-    26984457539
     """
     answer = 0
 
@@ -24,11 +32,48 @@ def part1(data,days):
     return len(new)
 
 
-def part2(data):
-    answer = 0
+def part2(fishes, days):
+    """
+    >>> part2([0], 7)
+    2
+    >>> part2([0], 6)
+    2
+    >>> part2([0], 8)
+    3
+    >>> part2([0], 1)
+    2
+    >>> part2([1], 1)
+    1
+    >>> part2([3,4,3,1,2], 1)
+    5
+    >>> part2([3,4,3,1,2], 2)
+    6
+    >>> part2([3,4,3,1,2], 8)
+    10
+    >>> part2([3,4,3,1,2], 10)
+    12
+    >>> part2([3,4,3,1,2], 12)
+    17
+    >>> part2([3,4,3,1,2], 18)
+    26
+    >>> part2([3,4,3,1,2],80)
+    5934
+    """
 
-    # Solution here
+    answer = len(fishes)
 
+    new = []
+    for fish in fishes:
+        new.append((fish, days))
+    fishes = new
+
+    while len(fishes):
+        (fish, fish_days) = fishes.pop()
+        while fish_days > fish:
+            fish_days = fish_days - fish - 1
+            fishes.append((8, fish_days))
+            answer += 1
+            fish = 6
     return answer
 
 
@@ -36,5 +81,15 @@ if __name__ == '__main__':
     with open('input') as f:
         line = f.readline().strip()
 
-    print('Part 1: ', part1(map(int, line.split(',')), 80))
-#    print('Part 2: ', part2(lines))
+    '''
+    fishes = [3,4,3,1,2]
+    i = 0
+    print('day', i)
+    while part1(fishes, i) == part2(fishes,i):
+        i += 1
+        print('day', i)
+    '''
+
+    i = list(map(int, line.split(',')))
+    print('Part 1: ', part1(i, 80))
+    print('Part 2: ', part2(i, 256))
