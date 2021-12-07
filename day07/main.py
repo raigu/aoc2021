@@ -6,7 +6,8 @@ def part2(data):
     for e in range(len(data)):
         fuel = 0
         for b in range(len(data)):
-            fuel += sum([i+1 for i in range(abs(e-data[b]))])
+            step = abs(e-data[b])
+            fuel += step * (step + 1) // 2
         if fuel < min:
             min = fuel
     return min
