@@ -9,7 +9,6 @@ if __name__ == '__main__':
             for x, c in enumerate(line.strip()):
                 matrix[Point(x,y)] = int(c)
 
-    next = {}
     flashes = 0
     part1 = 0
     part2 = -1
@@ -19,35 +18,33 @@ if __name__ == '__main__':
 
         # step increase
         for p in matrix:
-            next[p] = matrix[p] + 1
+            matrix[p] += 1
 
         # flashing
         any = True # true means someone flashed and increased neighbours energy level
         flashed = []
         while any:
             any = False
-            for n in next:
-                if next[n] > 9: # FLASH!
+            for p in matrix:
+                if matrix[p] > 9: # FLASH!
                     any = True
-                    next[n] = 0
+                    matrix[p] = 0
 
-                    if n not in flashed: # only once can flash in one step
-                        flashed.append(n)
+                    if p not in flashed: # only once can flash in one step
+                        flashed.append(p)
                         flashes += 1
 
                         # radiate energy to non-flashed neighbours
-                        for j in n.neighbors():
-                            if 0 <= j._coordinates[0] < 10 and 0 <= j._coordinates[1] < 10:
-                                if j not in flashed:
-                                    next[j] += 1
+                        for n in p.neighbors():
+                            if 0 <= n._coordinates[0] < 10 and 0 <= n._coordinates[1] < 10:
+                                if n not in flashed:
+                                    matrix[n] += 1
 
-        if len(next) == len(flashed):
+        if len(matrix) == len(flashed):
             part2 = i
 
         if i == 100:
             part1 = flashes
-
-        matrix = dict(next)
 
 
     print(f'Part1: {part1}')
