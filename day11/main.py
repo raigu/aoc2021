@@ -1,34 +1,5 @@
 from day11.point import Point
 
-
-def part1(data):
-    answer = 0
-
-    for line in data:
-        answer += 1
-
-    return answer
-
-
-def part2(data):
-    answer = 0
-
-    for line in data:
-        answer += 1
-
-    return answer
-
-def print_matrix(m):
-    o = []
-    for y in range(10):
-        o.append([-1]*10)
-
-    for p in m:
-        o[p._coordinates[1]][p._coordinates[0]] = str(m[p])
-
-    for r in o:
-        print("".join(r))
-
 if __name__ == '__main__':
     print('Day 11')
 
@@ -41,8 +12,11 @@ if __name__ == '__main__':
 
     next = {}
     flashes = 0
-    part2 = 0
-    for i in range(700):
+    part1 = 0
+    part2 = -1
+    i = 0
+    while part2 == -1:
+        i = i+1
         for p in matrix:
             next[p] = matrix[p] + 1
 
@@ -65,16 +39,15 @@ if __name__ == '__main__':
                                 if j not in flashed:
                                     next[j] += 1
 
-        #print(i+1)
-        #print_matrix(next)
-        #print()
+        if len(matrix) == len(flashed):
+            part2 = i
 
-        if len(matrix) == len(flashed) and part2 == 0:
-            part2 = i + 1
+        if i == 100:
+            part1 = flashes
 
         matrix = dict(next)
 
 
-    print(f'Part1: {flashes}')
+    print(f'Part1: {part1}')
     print(f'Part2: {part2}')
 
