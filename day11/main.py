@@ -7,30 +7,30 @@ if __name__ == '__main__':
         matrix = {}
         for y, line in enumerate([line.strip() for line in f.readlines()]):
             for x, c in enumerate(line.strip()):
-                matrix[Point(x,y)] = int(c)
+                matrix[Point(x, y)] = int(c)
 
     flashes = 0
     part1 = 0
     part2 = -1
     i = 0
     while part2 == -1:
-        i = i+1
+        i = i + 1
 
         # step increase
         for p in matrix:
             matrix[p] += 1
 
         # flashing
-        any = True # true means someone flashed and increased neighbours energy level
+        any = True  # true means someone flashed and increased neighbours energy level
         flashed = []
         while any:
             any = False
             for p in matrix:
-                if matrix[p] > 9: # FLASH!
+                if matrix[p] > 9:  # FLASH!
                     any = True
                     matrix[p] = 0
 
-                    if p not in flashed: # only once can flash in one step
+                    if p not in flashed:  # only once can flash in one step
                         flashed.append(p)
                         flashes += 1
 
@@ -46,7 +46,5 @@ if __name__ == '__main__':
         if i == 100:
             part1 = flashes
 
-
     print(f'Part1: {part1}')
     print(f'Part2: {part2}')
-
