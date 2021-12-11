@@ -29,6 +29,19 @@ class Point:
 
         return self._coordinates[dimension]
 
+    def in_grid(self, *maxes):
+        """
+        >>> Point(0,0).in_grid(0,0)
+        False
+        >>> Point(0,0).in_grid(1,1)
+        True
+        """
+        for i, m in enumerate(maxes):
+            if not (0 <= self._coordinates[i] < m):
+                return False
+
+        return True
+
     def __eq__(self, other):
         """
         >>> Point(1) == Point(1)

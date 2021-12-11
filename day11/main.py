@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
                         # radiate energy to non-flashed neighbours
                         for n in p.neighbors():
-                            if 0 <= n._coordinates[0] < 10 and 0 <= n._coordinates[1] < 10:
+                            if n.in_grid(10, 10):
                                 if n not in flashed:
                                     matrix[n] += 1
 
