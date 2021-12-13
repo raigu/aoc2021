@@ -24,7 +24,7 @@ def output(points):
     for y in range(max_y + 1):
         row = []
         for x in range(max_x + 1):
-            row.append('#' if (x, y) in points else ' ')
+            row.append('█' if (x, y) in points else ' ')
         print(''.join(row))
 
 
