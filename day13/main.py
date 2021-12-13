@@ -8,9 +8,9 @@ def fold(dots, instruction):
     next = set()
     for x, y in dots:
         if instruction[0] == 'x' and x > instruction[1]:
-            next.add((instruction[1] - (x - instruction[1]), y))
+            next.add((2 * instruction[1] - x, y))
         elif instruction[0] == 'y' and y > instruction[1]:
-            next.add((x, instruction[1] - (y - instruction[1])))
+            next.add((x, 2 * instruction[1] - y))
         else:
             next.add((x, y))
 
@@ -21,13 +21,10 @@ def output(points):
     max_x = max(x for x, y in points)
     max_y = max(y for x, y in points)
 
-    for y in range(max_y+1):
+    for y in range(max_y + 1):
         row = []
-        for x in range(max_x+1):
-            if (x, y) in points:
-                row.append('#')
-            else:
-                row.append('.')
+        for x in range(max_x + 1):
+            row.append('#' if (x, y) in points else ' ')
         print(''.join(row))
 
 
@@ -37,13 +34,10 @@ if __name__ == '__main__':
         instructions = []
         dots = set()
         for line in lines:
-            if line == '':
-                continue
-
             if line.startswith('fold along'):
                 (d, pos) = line[11:].split('=')
                 instructions.append((d, int(pos)))
-            else:
+            elif line != '':
                 x, y = line.split(',')
                 dots.add((int(x), int(y)))
 
