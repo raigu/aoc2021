@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 
 def part1(template, rules, steps=10):
@@ -13,36 +13,53 @@ def part1(template, rules, steps=10):
 
     return template
 
+def group(s):
+    ret = defaultdict(lambda: 0)
+    for c in s:
+        ret[c] += 1
+    return dict(ret)
 
-def part2(pairs, rules, steps):
+
+def part2(template, rules, steps):
     """
-    >>> part2({"NN": 1}, {"NN":"C"}, 1)
-    {'NC': 1, 'CN': 1}
     >>> rules = {"CH":"B","HH":"N","CB":"H","NH":"C","HB":"C","HC":"B","HN":"C","NN":"C","BH":"H","NC":"B","NB":"B","BN":"B","BB":"N","BC":"B","CC":"N","CN":"C"}
-    >>> part2(["NN"], rules, 2)
-    {'NB': 1, 'BC': 1, 'CC': 1, 'CN': 1}
-    >>> part2({'NB': 1, 'BC': 1, 'CC': 1, 'CN': 1}, rules, 1)
-    {'NB': 2, 'BC': 2, 'CC': 1, 'CN': 1, 'BB': 2, 'CB': 3, 'BH': 1, 'HC': 1}
+    >>> part2("NNCB", rules, 4)
+    {'N': 11, 'C': 10, 'B': 23, 'H': 5}
+    >>> part2("NNCB", rules, 3)
+    {'N': 5, 'C': 5, 'B': 11, 'H': 4}
+    >>> part2("NNCB", rules, 1)
+    {'N': 2, 'C': 2, 'B': 2, 'H': 1}
+    >>> part2("NN", {"NN":"C"}, 1)
+    {'N': 2, 'C': 1}
+    >>> part2("NN", rules, 2)
+    {'N': 2, 'C': 2, 'B': 1}
     """
+
+    pairs = defaultdict(lambda: 0)
+    for j in range(len(template)-1):
+        pair = template[j:j+2]
+        pairs[pair] += 1
 
     letters = defaultdict(lambda: 0)
+    for c in template:
+        letters[c] += 1
 
     for i in range(steps):
         next = defaultdict(lambda: 0)
         for pair in pairs:
             m = rules[pair]
-            letters[m] += 1
-            next[pair[0]+m] += 1
-            next[m+pair[1]] += 1
+            letters[m] += pairs[pair]
+            next[pair[0]+m] += pairs[pair]
+            next[m+pair[1]] += pairs[pair]
         pairs = next
 
-    return dict(pairs)
+    return dict(letters)
 
 
 if __name__ == '__main__':
     rules = {}
     template = ''
-    with open('input1') as f:
+    with open('input') as f:
         lines = [line.strip() for line in f.readlines()]
         for line in lines:
             if line == '':
@@ -63,26 +80,8 @@ if __name__ == '__main__':
 
     print(f'Part1: {e}')
 
-    pairs = defaultdict(lambda: 0)
-    for j in range(len(template)-1):
-        pair = template[j:j+2]
-        pairs[pair] += 1
+    letters  = part2(template, rules, 40)
 
-    print(pairs)
-
-    p1 = part2(pairs, rules, 10)
-    print(p1)
-    g = defaultdict(lambda: 0)
-    for pair in p1:
-        g[pair[0]] += p1[pair]
-        g[pair[1]] += p1[pair]
-
-    g = dict(g)
-    g[template[0]] -= 1
-    g[template[-1]] -= 1
-
-    print(dict(g))
-
-    print(sum(list(g.values())), max(list(g.values())), min(list(g.values())))
-    e = max(list(g.values())) - min(list(g.values()))
+    e = max(list(letters.values())) - min(list(letters.values()))
     print(f'Part2: {e}')
+
