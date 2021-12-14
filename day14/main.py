@@ -32,7 +32,15 @@ def part2(template, rules, steps):
         if steps == 0:
             return m
         else:
-            return middle(pair[0] + m, rules, steps - 1) + m + middle(m + pair[1], rules, steps - 1)
+            f = pair[0] + m
+            fm = middle(f, rules, steps - 1)
+            s = m + pair[1]
+            if f == s:
+                sm = fm
+            else:
+                sm = middle(s, rules, steps-1)
+
+            return fm + m + sm
 
     ret = ''
     for j in range(len(template) - 1):
