@@ -14,43 +14,29 @@ def part1(template, rules, steps=10):
     return template
 
 
-def part2(template, rules, steps):
+def part2(pairs, rules, steps):
     """
+    >>> part2({"NN": 1}, {"NN":"C"}, 1)
+    {'NC': 1, 'CN': 1}
     >>> rules = {"CH":"B","HH":"N","CB":"H","NH":"C","HB":"C","HC":"B","HN":"C","NN":"C","BH":"H","NC":"B","NB":"B","BN":"B","BB":"N","BC":"B","CC":"N","CN":"C"}
-    >>> part2("NN", rules, 2)
-    'NBCCN'
-    >>> part2("NCNBCHB", rules, 1)
-    'NBCCNBBBCBHCB'
-    >>> part2("NN", {"NN":"C", "NC": "N", "CN": "N"}, 2)
-    'NNCNN'
-    >>> part2("NN", {"NN":"C"}, 1)
-    'NCN'
+    >>> part2(["NN"], rules, 2)
+    {'NB': 1, 'BC': 1, 'CC': 1, 'CN': 1}
+    >>> part2({'NB': 1, 'BC': 1, 'CC': 1, 'CN': 1}, rules, 1)
+    {'NB': 2, 'BC': 2, 'CC': 1, 'CN': 1, 'BB': 2, 'CB': 3, 'BH': 1, 'HC': 1}
     """
 
-    def middle(pair, rules, steps):
-        m = rules[pair]
-        if steps == 0:
-            return m
-        else:
-            f = pair[0] + m
-            fm = middle(f, rules, steps - 1)
-            s = m + pair[1]
-            if f == s:
-                sm = fm
-            else:
-                sm = middle(s, rules, steps-1)
+    letters = defaultdict(lambda: 0)
 
-            return fm + m + sm
+    for i in range(steps):
+        next = defaultdict(lambda: 0)
+        for pair in pairs:
+            m = rules[pair]
+            letters[m] += 1
+            next[pair[0]+m] += 1
+            next[m+pair[1]] += 1
+        pairs = next
 
-    ret = ''
-    for j in range(len(template) - 1):
-        pair = template[j:j + 2]
-        print(pair)
-        m = middle(pair, rules, steps - 1)
-        ret = ret + template[j] + m
-    ret = ret + template[-1]
-
-    return ret
+    return dict(pairs)
 
 
 if __name__ == '__main__':
@@ -77,10 +63,26 @@ if __name__ == '__main__':
 
     print(f'Part1: {e}')
 
-    p1 = part2(template, rules, 40)
-    g = defaultdict(lambda: 0)
-    for c in p1:
-        g[c] += 1
+    pairs = defaultdict(lambda: 0)
+    for j in range(len(template)-1):
+        pair = template[j:j+2]
+        pairs[pair] += 1
 
+    print(pairs)
+
+    p1 = part2(pairs, rules, 10)
+    print(p1)
+    g = defaultdict(lambda: 0)
+    for pair in p1:
+        g[pair[0]] += p1[pair]
+        g[pair[1]] += p1[pair]
+
+    g = dict(g)
+    g[template[0]] -= 1
+    g[template[-1]] -= 1
+
+    print(dict(g))
+
+    print(sum(list(g.values())), max(list(g.values())), min(list(g.values())))
     e = max(list(g.values())) - min(list(g.values()))
     print(f'Part2: {e}')
