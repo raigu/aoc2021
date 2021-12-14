@@ -1,9 +1,8 @@
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 
 
 def part1(template, rules, steps=10):
     for i in range(steps):
-        print(i + 1)
         next = ''
         for j in range(len(template) - 1):
             pair = template[j:j + 2]
@@ -12,13 +11,6 @@ def part1(template, rules, steps=10):
         template = next
 
     return template
-
-def group(s):
-    ret = defaultdict(lambda: 0)
-    for c in s:
-        ret[c] += 1
-    return dict(ret)
-
 
 def part2(template, rules, steps):
     """
@@ -35,17 +27,17 @@ def part2(template, rules, steps):
     {'N': 2, 'C': 2, 'B': 1}
     """
 
-    pairs = defaultdict(lambda: 0)
+    pairs = defaultdict(int)
     for j in range(len(template)-1):
         pair = template[j:j+2]
         pairs[pair] += 1
 
-    letters = defaultdict(lambda: 0)
+    letters = defaultdict(int)
     for c in template:
         letters[c] += 1
 
     for i in range(steps):
-        next = defaultdict(lambda: 0)
+        next = defaultdict(int)
         for pair in pairs:
             m = rules[pair]
             letters[m] += pairs[pair]
@@ -72,16 +64,13 @@ if __name__ == '__main__':
 
 
     p1 = part1(template, rules, 10)
-    g = defaultdict(lambda: 0)
+    g = defaultdict(int)
     for c in p1:
         g[c] += 1
-
     e = max(list(g.values())) - min(list(g.values()))
-
     print(f'Part1: {e}')
 
     letters  = part2(template, rules, 40)
-
     e = max(list(letters.values())) - min(list(letters.values()))
     print(f'Part2: {e}')
 
