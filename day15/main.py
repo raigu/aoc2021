@@ -72,22 +72,29 @@ def next_min_risk(y, x, shortest) -> int:
 def part1_risk(y, x, space):
     return space[y][x]
 
+cache = {}
+def solution(y, x, space, my, mx, risk) -> int:
+    key = (y, x)
+    ret = cache.get(key, None)
 
-def solution(space, my, mx, risk) -> int:
-    shortest = [] * my
-    for y in range(my):
-        shortest.append([None] * mx)
+    if ret is None:
+        if y + 1 == my and x + 1 == mx:
+            ret = risk(y, x, space)
+        else:
+            candidates = []
+            if y + 1 < my:
+                candidates.append(solution(y+1, x, space, my, mx, risk))
+            if x + 1 < mx:
+                candidates.append(solution(y, x+1, space, my, mx, risk))
 
-    y = my
-    while y > 0:
-        y -= 1
-        x = mx
-        while x > y:
-            x -= 1
-            shortest[y][x] = risk(y, x, space) + next_min_risk(y, x, shortest)
-            shortest[x][y] = risk(x, y, space) + next_min_risk(x, y, shortest)
+            ret = risk(y, x, space)+min(candidates)
 
-    return shortest[0][0] - space[0][0]
+            #print(y,x, ret)
+
+        cache[y,x] = ret
+
+    return ret
+
 
 
 if __name__ == '__main__':
@@ -97,11 +104,11 @@ if __name__ == '__main__':
         for line in lines:
             space.append(list(int(c) for c in line))
 
-    #p1 = solution(space, len(space), len(space[0]), part1_risk)
-    #print(f'Part1: {p1}')
+    p1 = solution(0, 0, space, len(space), len(space[0]), part1_risk) - space[0][0]
+    print(f'Part1: {p1}')
 
     # 2851 :(
     # 2845 :(
-    p2 = solution(space, len(space) * 5, len(space[0]) * 5, part2_risk)
+    cache = {}
+    p2 = solution(0, 0, space, len(space) * 5, len(space[0]) * 5, part2_risk)
     print(f'Part2: {p2}')
-
