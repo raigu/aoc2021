@@ -1,8 +1,22 @@
 import sys
 
 
+def part2_risk2(point, y, x, ny, nx):
+    dy = y // ny
+    dx = x // nx
+
+    point = space[y % ny][x % nx] + dx + dy
+    if point > 9:
+        point = point % 9
+
+    return point
+
 def part2_risk(y, x, space) -> int:
     """
+    >>> part2_risk(1, 8, [[9,2]])
+    5
+    >>> part2_risk(4, 1, [[9,2]])
+    6
     >>> part2_risk(8, 8, [[8]])
     6
     >>> part2_risk(2, 2, [[8]])
@@ -37,7 +51,7 @@ def part2_risk(y, x, space) -> int:
     return point
 
 
-def my_min(y, x, shortest) -> int:
+def next_min_risk(y, x, shortest) -> int:
     if y + 1 < len(shortest):
         down = shortest[y + 1][x]
     else:
@@ -62,7 +76,7 @@ def part1_risk(y, x, space):
 def solution(space, my, mx, risk) -> int:
     shortest = [] * my
     for y in range(my):
-        shortest.append([0] * mx)
+        shortest.append([None] * mx)
 
     y = my
     while y > 0:
@@ -70,9 +84,8 @@ def solution(space, my, mx, risk) -> int:
         x = mx
         while x > y:
             x -= 1
-            shortest[y][x] = risk(y, x, space) + my_min(y, x, shortest)
-            if x != y:
-                shortest[x][y] = risk(x, y, space) + my_min(x, y, shortest)
+            shortest[y][x] = risk(y, x, space) + next_min_risk(y, x, shortest)
+            shortest[x][y] = risk(x, y, space) + next_min_risk(x, y, shortest)
 
     return shortest[0][0] - space[0][0]
 
@@ -84,9 +97,11 @@ if __name__ == '__main__':
         for line in lines:
             space.append(list(int(c) for c in line))
 
-    p1 = solution(space, len(space), len(space[0]), part1_risk)
-    print(f'Part1: {p1}')
+    #p1 = solution(space, len(space), len(space[0]), part1_risk)
+    #print(f'Part1: {p1}')
 
     # 2851 :(
+    # 2845 :(
     p2 = solution(space, len(space) * 5, len(space[0]) * 5, part2_risk)
-    print(f'Part1: {p2}')
+    print(f'Part2: {p2}')
+
