@@ -1,6 +1,6 @@
 import sys
 from collections import defaultdict
-
+from queue import PriorityQueue
 
 def part1_risk(n, space):
     (y, x) = n
@@ -63,26 +63,14 @@ def solution(y, x, space, size_y, size_x, edge) -> int:
     distances = defaultdict(lambda: sys.maxsize)
 
     distances[s] = 0  # distance from start to start is known
-    queue = {s}
-    while len(queue):
-
-        # let's take next shortest node to continue
-        v = None
-        d = sys.maxsize
-        for e in queue:
-            if distances[e] < d:
-                v = e
-                d = distances[e]
-        queue.remove(v)
-
+    queue = PriorityQueue()
+    queue.put((0, s))
+    while not queue.empty():
+        d, v = queue.get()
         for n in neighbours(v, size_y, size_x):
             if distances[n] > distances[v] + edge(n, space):
                 distances[n] = distances[v] + edge(n, space)
-                # We found shorter path for node n
-                # This also affects the n's neighbours.
-                # Let's add n to queue for processing its neighbours later.
-                if n not in queue:
-                    queue.add(n)
+                queue.put((distances[n], n))
 
     return distances[(size_y - 1, size_x - 1)]
 
