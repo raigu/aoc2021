@@ -30,12 +30,16 @@ def part1(data):
 
 
 def part2(data):
-    answer = 0
+    max = -1
+    for i in range(len(data)):
+        for j in range(len(data)):
+            sum = '[' + data[i] + ',' + data[j] + ']'
+            sum = reduce(sum)
+            m = magnitude(json.loads(sum))
+            if m > max:
+                max = m
 
-    for line in data:
-        answer += 1
-
-    return answer
+    return max
 
 
 def add(op1, op2):
@@ -133,4 +137,6 @@ if __name__ == '__main__':
         lines = [line.strip() for line in f.readlines()]
 
     print(f'Part1: {part1(lines)}')
+
+    # 2501 - too low
     print(f'Part2: {part2(lines)}')
