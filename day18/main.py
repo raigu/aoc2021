@@ -7,26 +7,20 @@ def magnitude(number):
     29
     """
     if isinstance(number, list):
-        return magnitude(number[0])*3 + magnitude(number[1])*2
+        return magnitude(number[0]) * 3 + magnitude(number[1]) * 2
     else:
         return number
 
-def part1(data):
 
+def part1(data):
     sum = data[0]
     i = 1
     while i < len(data):
-        print(i)
         sum = '[' + sum + ',' + data[i] + ']'
-        print(sum)
         sum = reduce(sum)
-        print(sum)
         i += 1
 
-    print(sum)
-    print(magnitude(json.loads(sum)))
-
-    return -1
+    return magnitude(json.loads(sum))
 
 
 def part2(data):
@@ -79,27 +73,25 @@ def reduce(op):
             i += 1
 
         if level == 5:
-            k = i+1
+            k = i + 1
             while ret[k] != ']':
                 k += 1
-            #print("-")
-            #print(ret, i, k, ret[i:k])
             op1, op2 = tuple(map(int, ret[i:k].split(',')))
 
-            left = ret[:i-1]
-            right = ret[k+1:]
+            left = ret[:i - 1]
+            right = ret[k + 1:]
 
             # modify left value
-            j = len(left)-1
+            j = len(left) - 1
             while j >= 0 and not ('0' <= left[j] <= '9'):
                 j -= 1
             if j >= 0:
                 # extract number position
                 k = j
-                while '0' <= left[k-1] <= '9':
+                while '0' <= left[k - 1] <= '9':
                     k -= 1
 
-                left = left[:k] + str(int(left[k:j+1]) + int(op1))  + left[j+1:]
+                left = left[:k] + str(int(left[k:j + 1]) + int(op1)) + left[j + 1:]
 
             # replace right value
             j = 0
@@ -110,26 +102,25 @@ def reduce(op):
                 while k < len(right) and '0' <= right[k] <= '9':
                     k += 1
 
-                right = right[:j] + str(int(right[j:k])+int(op2)) + right[k:]
+                right = right[:j] + str(int(right[j:k]) + int(op2)) + right[k:]
 
             reduced = left + '0' + right
             continue
 
-        #split
+        # split
         i = 0
         while i < len(ret):
-            if '0' <= ret[i] <= '9' and '0' <= ret[i+1] <= '9':
-                n = int(ret[i:i+2])
+            if '0' <= ret[i] <= '9' and '0' <= ret[i + 1] <= '9':
+                n = int(ret[i:i + 2])
                 left = ret[:i]
-                right = ret[i+2:]
-                reduced = left + '[' + str(n // 2) +',' + str(n // 2 + (n % 2)) + ']' + right
+                right = ret[i + 2:]
+                reduced = left + '[' + str(n // 2) + ',' + str(n // 2 + (n % 2)) + ']' + right
                 i = len(ret)
             else:
                 i += 1
 
-        #print(ret)
-
     return ret
+
 
 if __name__ == '__main__':
     print("Day 18")
@@ -137,6 +128,4 @@ if __name__ == '__main__':
         lines = [line.strip() for line in f.readlines()]
 
     print(f'Part1: {part1(lines)}')
-
-    # 2501 - too low
     print(f'Part2: {part2(lines)}')
