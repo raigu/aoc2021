@@ -1,40 +1,20 @@
-from itertools import product, permutations
+from itertools import product
 
 
-def part1(data):
-    answer = 0
+def manhattan_distance(locations):
+    max = 0
+    for i, s0 in enumerate(locations):
+        for j, s1 in enumerate(locations):
+            if i == j:
+                continue
 
-    for line in data:
-        answer += 1
+            d = 0
+            for c0, c1 in zip(s0, s1):
+                d += abs(c0 - c1)
+            if d > max:
+                max = d
 
-    return answer
-
-
-def part2(data):
-    answer = 0
-
-    for line in data:
-        answer += 1
-
-    return answer
-
-def identity_matrix(n):
-    """
-    >>> identity_matrix(3)
-    [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    >>> identity_matrix(2)
-    [[1, 0], [0, 1]]
-    """
-    ret = []*n
-    for i in range(n):
-        row = []
-        for j in range(n):
-            if j == i:
-                row.append(1)
-            else:
-                row.append(0)
-        ret.append(row)
-    return ret
+    return max
 
 
 class Vector:
@@ -90,23 +70,6 @@ class Vector:
 
         return Vector(*ret)
 
-    def all_directions(self):
-        """
-        >>> Vector(1,2).all_directions()
-        [Vector(-1,-2), Vector(-2,-1), Vector(-1,2), Vector(-2,1), Vector(1,-2), Vector(2,-1), Vector(1,2), Vector(2,1)]
-        >>> Vector(1).all_directions()
-        [Vector(-1), Vector(1)]
-        """
-
-        ret = []
-        for shift in product([-1, 1], repeat=len(self.coordinates)):
-            for coordinate in permutations(self.coordinates, len(self.coordinates)):
-                coordinate = list(coordinate)
-                for i, c in enumerate(coordinate):
-                    coordinate[i] = c * shift[i]
-                ret.append(Vector(*coordinate))
-        return ret
-
     def __hash__(self) -> int:
         return hash(repr(self))
 
@@ -140,50 +103,59 @@ def all_directions(n) -> list:
 if __name__ == '__main__':
     scanners = []
 
-    input = 2
+    n = 3
+    minimum_match_requirement = 12
+    directions = all_directions(n)
 
-    if input == 1:
-        minimum_match_requirement = 3
-        directions = all_directions(2)
-    else:
-        minimum_match_requirement = 12
-        directions = all_directions(3)
-
-    with open(f'input{input}') as f:
+    with open(f'input') as f:
         lines = [line.strip() for line in f.readlines()]
         j = -1
         for line in lines:
             if line.startswith('---'):  # new scanner
-                scanners.append(set())
+                scanners.append([])
                 j += 1
             elif line != '':
-                scanners[j].add(Vector(*list(map(int, line.split(',')))))
+                scanners[j].append(Vector(*list(map(int, line.split(',')))))
 
+    visited = [0]
+    queue = [0]
+    locations = [[0, 0, 0]]
+    while len(visited) != len(scanners):
+        i = queue.pop()
+        j = 0
+        for j in range(len(scanners)):
+            if j in visited or i == j:
+                continue
 
-
-    beacons = scanners[0] # first scanner beacons we already know
-
-    for i in range(len(scanners)):
-        j = i + 1
-        while j < len(scanners):
             print(i, j)
-            for sui0 in scanners[i]:
-                for sui1 in scanners[j]:
-                    s2 = sui0 - sui1
+            k = 0
+            found = False
+            while k < len(scanners[i]) and not found:
+                l = 0
+                while l < len(scanners[j]) and not found:
                     for direction in directions:
-                        transformed = set()
+                        s2 = scanners[i][k] - scanners[j][l].transform(direction)
+                        transformed = []
                         for beacon in scanners[j]:
                             beacon = beacon.transform(direction)
-                            transformed.add(s2 + beacon)
+                            transformed.append(s2 + beacon)
 
-                        matched = transformed.intersection(scanners[0])
+                        matched = set(transformed).intersection(scanners[i])
                         if len(matched) >= minimum_match_requirement:
-                            beacons |= matched
+                            print("Found ", j, 'coordinates:', s2)
+                            found = True
+                            scanners[j] = transformed
+                            locations.append(list(s2.coordinates))
+                            visited.append(j)
+                            queue.append(j)
                             break
-            j += 1
-    print(beacons)
-    print(len(beacons))
+                    l += 1
+                k += 1
+
+    beacons = set()
+    for current in scanners:
+        beacons |= set(current)
 
     print('Day 19')
-    print(f'Part1: {part1(lines)}')
-    print(f'Part2: {part2(lines)}')
+    print(f'Part1:', len(beacons))
+    print(f'Part2: {manhattan_distance(locations)}')
