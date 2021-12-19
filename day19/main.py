@@ -109,7 +109,6 @@ class Vector:
         coordinates = ','.join([str(c) for c in self.coordinates])
         return f'Vector({coordinates})'
 
-
 if __name__ == '__main__':
     scanners = []
     with open('input2') as f:
@@ -122,17 +121,24 @@ if __name__ == '__main__':
             elif line != '':
                 scanners[j].add(Vector(*list(map(int, line.split(',')))))
 
+    directions = [
+        [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+        ]
+    ]
+
     beacons = set()
     minimum_match_requirement = 12
     for sui0 in scanners[0]:
         for sui1 in scanners[1]:
-            s2 = sui0 - sui1
             for direction in directions:
-                transformed = set()
-                for beacon in transform(scanners[1], direction):
-                    transformed.add(s2 + beacon)
+                matched = set()
+                alternate = sui1.transform(direction)
+                alternate = alternate - sui0
 
-                matched = transformed.intersection(scanners[0])
+                matched = sui0.intersection(sui1)
                 if len(matched) >= minimum_match_requirement:
                     beacons |= matched
                     break
