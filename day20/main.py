@@ -65,15 +65,6 @@ def part1(image, algorithm, count):
     return len(image)
 
 
-def part2(data):
-    answer = 0
-
-    for line in data:
-        answer += 1
-
-    return answer
-
-
 if __name__ == '__main__':
     with open('input') as f:
         lines = [line.strip() for line in f.readlines()]
