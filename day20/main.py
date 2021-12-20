@@ -1,4 +1,5 @@
 import sys
+from collections import defaultdict
 from enum import Enum
 
 
@@ -16,16 +17,19 @@ class Brightness(Enum):
         else:
             return self.DARK
 
+    def __str__(self) -> str:
+        return '#' if self == Brightness.LIGHT else '.'
+
 
 class Image:
 
-    def __init__(self):
+    def __init__(self, default_brightness: Brightness):
         self.max_y = -sys.maxsize
         self.max_x = -sys.maxsize
         self.min_y = sys.maxsize
         self.min_x = sys.maxsize
-        self.default_brightness = Brightness.DARK
-        self.pixels = set()
+        self.default_brightness = default_brightness
+        self.pixels = defaultdict(lambda: default_brightness)
 
     def add_pixel(self, y: int, x: int, brightness: Brightness):
         if y < self.min_y:
@@ -37,17 +41,7 @@ class Image:
         if x > self.max_x:
             self.max_x = x
 
-        if brightness != self.default_brightness:
-            self.pixels.add((y, x))
-
-    def pixel(self, y, x) -> Brightness:
-        if self.min_y <= y <= self.max_x and self.min_x <= x and self.max_x:
-            if (y, x) in self.pixels:
-                return self.default_brightness.opposite()
-            else:
-                return self.default_brightness
-        else:
-            return self.default_brightness
+        self.pixels[(y, x)] = brightness
 
     def enhancement_algorithm_index(self, y, x) -> int:
         digit = ''
@@ -55,7 +49,7 @@ class Image:
         while i < y + 2:
             j = x - 1
             while j < x + 2:
-                if self.pixel(i, j) == Brightness.LIGHT:
+                if self.pixels[(i, j)] == Brightness.LIGHT:
                     digit += '1'
                 else:
                     digit += '0'
@@ -65,11 +59,11 @@ class Image:
         return int(digit, 2)
 
     def enhance(self, algorithm: str) -> 'Image':
-        output = Image()
         if Brightness.from_str(algorithm[0]) == Brightness.LIGHT:
-            output.default_brightness = self.default_brightness.opposite()
+            default_brightness = self.default_brightness.opposite()
         else:
-            output.default_brightness = Brightness.DARK
+            default_brightness = Brightness.DARK
+        output = Image(default_brightness)
 
         y = self.min_y - 1
         while y <= self.max_y + 2:
@@ -86,8 +80,18 @@ class Image:
     def lit_pixels_count(self) -> int:
         if self.default_brightness == Brightness.LIGHT:
             raise Exception('There is no number big enough to answer your question!')
-        return len(self.pixels)
+        return len([v for c,v in self.pixels.items() if v == Brightness.LIGHT])
 
+    def print(self) -> None:
+        i = self.min_y
+        while i <= self.max_y:
+            row = []
+            j = self.min_x
+            while j <= self.max_x:
+                row.append(str(self.pixels[(i,j)]))
+                j += 1
+            print(''.join(row))
+            i += 1
 
 if __name__ == '__main__':
     print('Day 20')
@@ -97,14 +101,16 @@ if __name__ == '__main__':
 
         algorithm = lines.pop(0).strip()
         lines.pop(0)
-        image = Image()
+        image = Image(Brightness.DARK)
         for y, row in enumerate(lines):
             for x, light in enumerate(row.strip()):
                 image.add_pixel(y, x, Brightness.from_str(light))
 
     # first 2
     for i in range(2):
+        #print(f'{i})')
         image = image.enhance(algorithm)
+        #image.print()
     print(f'Part1: {image.lit_pixels_count()}')
 
     # next 48
