@@ -19,48 +19,37 @@ def calc_index(y, x, image):
 
 
 def part1(image, algorithm, count):
+    min_x, max_x = sys.maxsize, -sys.maxsize
+    min_y, max_y = sys.maxsize, -sys.maxsize
 
-    '''
-    for y in range(5):
-        row = []
-        for x in range(5):
-            if (y,x) in image:
-                row.append('#')
-            else:
-                row.append('.')
-        print(''.join(row))
-    '''
+    for p in image:
+        if p[0] < min_y:
+            min_y = p[0]
+        if p[0] > max_y:
+            max_y = p[0]
+
+        if p[1] < min_x:
+            min_x = p[1]
+        if p[1] > max_x:
+            max_x = p[1]
+
+    min_x = min_x - 2*count - 1
+    max_x = max_x + 2*count + 1
+    min_y = min_y - 2*count - 1
+    max_y = max_y + 2*count + 1
 
     for i in range(count):
-        print(f'{i})')
-
-        min_x, max_x = sys.maxsize, -sys.maxsize
-        min_y, max_y = sys.maxsize, -sys.maxsize
-
-        for p in image:
-            if p[0] < min_y:
-                min_y = p[0]
-            if p[0] > max_y:
-                max_y = p[0]
-
-            if p[1] < min_x:
-                min_x = p[1]
-            if p[1] > max_x:
-                max_x = p[1]
-
-        min_x = min_x-2
-        max_x = max_x+3
-        min_y = min_y-2
-        max_y = max_y+3
-
-        print((min_x, min_y), (max_x,max_y))
+        min_x += 1
+        max_x -= 1
+        min_y += 1
+        max_y -= 1
 
         y = min_y
         next = set()
-        while y < max_y:
+        while y <= max_y:
             x = min_x
             row = []
-            while x < max_x:
+            while x <= max_x:
                 index = calc_index(y, x, image)
                 light = algorithm[index]
                 if light == '#':
@@ -68,7 +57,7 @@ def part1(image, algorithm, count):
 
                 row.append(light)
                 x += 1
-            print(''.join(row))
+            #print(''.join(row))
             y += 1
 
         image = copy(next)
@@ -99,6 +88,7 @@ if __name__ == '__main__':
 
     print('Day 20')
     # 5673 -- too low
+    # 5676
     # 5960 -- to high
     print(f'Part1: {part1(image, algorithm, 2)}')
-    print(f'Part2: {part2(lines)}')
+    print(f'Part2: {part1(image, algorithm, 50)}')
