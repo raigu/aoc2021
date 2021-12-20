@@ -12,10 +12,7 @@ class Brightness(Enum):
         return cls.LIGHT if light == '#' else cls.DARK
 
     def opposite(self):
-        if self == self.DARK:
-            return self.LIGHT
-        else:
-            return self.DARK
+        return self.LIGHT if self == self.DARK else self.DARK
 
     def __str__(self) -> str:
         return '#' if self == Brightness.LIGHT else '.'
@@ -93,6 +90,7 @@ class Image:
             print(''.join(row))
             i += 1
 
+
 if __name__ == '__main__':
     print('Day 20')
 
@@ -103,8 +101,8 @@ if __name__ == '__main__':
         lines.pop(0)
         image = Image(Brightness.DARK)
         for y, row in enumerate(lines):
-            for x, light in enumerate(row.strip()):
-                image.add_pixel(y, x, Brightness.from_str(light))
+            for x, brightness in enumerate(row.strip()):
+                image.add_pixel(y, x, Brightness.from_str(brightness))
 
     # first 2
     for i in range(2):
