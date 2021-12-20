@@ -11,17 +11,10 @@ class Brightness(Enum):
         return cls.LIGHT if light == '#' else cls.DARK
 
     def opposite(self):
-        """
-        >>> Brightness.DARK.opposite().name
-        'LIGHT'
-        """
         if self == self.DARK:
             return self.LIGHT
         else:
             return self.DARK
-
-    def __str__(self) -> str:
-        return '#' if self == Brightness.LIGHT else '.'
 
 
 class Image:
@@ -90,7 +83,7 @@ class Image:
 
         return output
 
-    def lit_pixels_count(self):
+    def lit_pixels_count(self) -> int:
         if self.default_brightness == Brightness.LIGHT:
             raise Exception('There is no number big enough to answer your question!')
         return len(self.pixels)
