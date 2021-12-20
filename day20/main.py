@@ -15,7 +15,7 @@ class Brightness(Enum):
         >>> Brightness.DARK.opposite().name
         'LIGHT'
         """
-        if self.value == self.DARK.value:
+        if self == self.DARK:
             return self.LIGHT
         else:
             return self.DARK
