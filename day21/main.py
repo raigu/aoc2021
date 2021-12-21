@@ -1,4 +1,5 @@
 import copy
+from collections import defaultdict
 from itertools import product
 from functools import cache
 
@@ -34,16 +35,20 @@ def part2(position1, points1, position2, points2, turn):
         return [0, 1]
     else:
         ret = [0, 0]
+
+        grouping = defaultdict(int)
         for combination in product([1, 2, 3], repeat=3):
-            points = sum(combination)
+            grouping[sum(combination)] += 1
+
+        for points, count in grouping.items():
             player = [[position1, points1], [position2, points2]]
             player[turn][0] = (player[turn][0] + points - 1) % 10 + 1
             player[turn][1] += player[turn][0]
 
             [win1, win2] = part2(player[0][0], player[0][1], player[1][0], player[1][1], (turn + 1) % 2)
 
-            ret[0] += win1
-            ret[1] += win2
+            ret[0] += count*win1
+            ret[1] += count*win2
 
         return ret
 
