@@ -1,26 +1,42 @@
-
-def part1(data):
-    answer = 0
-
-    for line in data:
-        answer += 1
-
-    return answer
+import copy
 
 
-def part2(data):
-    answer = 0
+def part1(position1, points1, position2, points2):
+    dice = 1
+    i = 0
+    while points1 < 1000 and points2 < 1000:
+        points = 3 * dice + 1 + 2
+        print('Round: ', i + 1, 'dice: ', dice, 'points:', points)
 
-    for line in data:
-        answer += 1
+        if i % 2 == 0:
+            position1 = (position1 + points-1) % 10 + 1
+            points1 += position1
+            print('Player1 ', position1, points1)
+        else:
+            position2 = (position2 + points-1) % 10 + 1
+            while position2 > 10:
+                position2 -= 10
+            points2 += position2
+            print('Player2 ', position2, points2)
 
-    return answer
+        dice = (dice + 3 - 1) % 100 + 1
+
+        i += 1
+
+    print('END: ', points1, points2)
+
+    return min(points1, points2) * (i * 3)
 
 
 if __name__ == '__main__':
     with open('input1') as f:
         lines = [line.strip() for line in f.readlines()]
 
-    print(f'Part1: {part1(lines)}')
-    print(f'Part2: {part2(lines)}')
+    position1 = 4
+    position2 = 8
 
+    position1 = 5
+    position2 = 10
+
+    print(f'Part1: {part1(position1, 0, position2, 0)}')
+    #print(f'Part2: {part2(21, position1, 0, position2, 0)}')
