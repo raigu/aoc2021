@@ -49,9 +49,6 @@ def part2(position1, points1, position2, points2, turn):
 
 
 if __name__ == '__main__':
-    with open('input1') as f:
-        lines = [line.strip() for line in f.readlines()]
-
     #position1 = 4
     #position2 = 8
 
