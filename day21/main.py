@@ -1,5 +1,6 @@
 import copy
 from itertools import product
+from functools import cache
 
 
 def part1(position1, points1, position2, points2):
@@ -24,32 +25,25 @@ def part1(position1, points1, position2, points2):
 
     return min(points1, points2) * (i * 3)
 
-cache = {}
+@cache
+def part2(position1, points1, position2, points2, turn):
 
-def part2(player, turn):
-
-    if player[0][1] >= 21:
+    if points1 >= 21:
         return [1, 0]
-    elif player[1][1] >= 21:
+    elif points2 >= 21:
         return [0, 1]
     else:
-        key = f'{player[0][0]},{player[0][1]},{player[1][0]},{player[1][1]},{turn}'
-        if key in cache:
-            return cache[key]
-
         ret = [0, 0]
         for combination in product([1, 2, 3], repeat=3):
             points = sum(combination)
-            parallel_player = copy.deepcopy(player)
-            parallel_player[turn][0] = (parallel_player[turn][0] + points - 1) % 10 + 1
-            parallel_player[turn][1] += parallel_player[turn][0]
+            player = [[position1, points1], [position2, points2]]
+            player[turn][0] = (player[turn][0] + points - 1) % 10 + 1
+            player[turn][1] += player[turn][0]
 
-            [win1, win2] = part2(parallel_player, (turn + 1) % 2)
+            [win1, win2] = part2(player[0][0], player[0][1], player[1][0], player[1][1], (turn + 1) % 2)
 
             ret[0] += win1
             ret[1] += win2
-
-        cache[key] = ret
 
         return ret
 
@@ -66,5 +60,5 @@ if __name__ == '__main__':
 
     print(f'Part1: {part1(position1, 0, position2, 0)}')
 
-    part2 = max(part2([[position1, 0], [position2, 0]], 0))
+    part2 = max(part2(position1, 0, position2, 0, 0))
     print(f'Part2: {part2}')
