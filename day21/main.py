@@ -1,30 +1,24 @@
-import copy
 from collections import defaultdict
-from itertools import product
 from functools import cache
+from itertools import product
 
 
 def part1(position1, points1, position2, points2):
     dice = 1
     i = 0
-    while points1 < 1000 and points2 < 1000:
+    turn = 0
+    player = [[position1, points1], [position2, points2]]
+    while player[0][1] < 1000 and player[1][1] < 1000:
         points = 3 * dice + 1 + 2
-        #print('Round: ', i + 1, 'dice: ', dice, 'points:', points)
 
-        if i % 2 == 0:
-            position1 = (position1 + points-1) % 10 + 1
-            points1 += position1
-            #print('Player1 ', position1, points1)
-        else:
-            position2 = (position2 + points-1) % 10 + 1
-            points2 += position2
-            #print('Player2 ', position2, points2)
+        player[turn][0] = (player[turn][0] + points - 1) % 10 + 1
+        player[turn][1] += player[turn][0]
 
+        turn = (turn + 1) % 2
         dice = (dice + 3 - 1) % 100 + 1
-
         i += 1
 
-    return min(points1, points2) * (i * 3)
+    return min(player[0][1], player[1][1]) * (i * 3)
 
 @cache
 def part2(position1, points1, position2, points2, turn):
@@ -54,9 +48,6 @@ def part2(position1, points1, position2, points2, turn):
 
 
 if __name__ == '__main__':
-    #position1 = 4
-    #position2 = 8
-
     position1 = 5
     position2 = 10
 
