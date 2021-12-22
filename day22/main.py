@@ -1,22 +1,4 @@
 
-def part1(data):
-    answer = 0
-
-    for line in data:
-        answer += 1
-
-    return answer
-
-
-def part2(data):
-    answer = 0
-
-    for line in data:
-        answer += 1
-
-    return answer
-
-
 class Reactor:
 
     def __init__(self) -> None:
@@ -58,7 +40,6 @@ class Reactor:
     def on_count(self) -> int:
         return len(self.cubes)
 
-
 class Line:
 
     def __init__(self, a, b):
@@ -75,141 +56,168 @@ class Line:
         """
         return str(self)
 
-    def diff(self, other: 'Line') -> list['Line']:
-        """
-        >>> Line(0,5).diff(Line(4,6))
-        [Line(0,3)]
-        >>> Line(2, 3).diff(Line(0,5))
-        []
-        >>> Line(0,1).diff(Line(2,3))
-        [Line(0,1)]
-        >>> Line(0, 0).diff(Line(0,0))
-        []
-        >>> Line(0, 5).diff(Line(2, 3))
-        [Line(0,1), Line(4,5)]
-        """
-
-        if other.a <= self.a <= other.b and other.a <= self.b <= other.b:
-            return []
-
-        if not (self.a <= other.a <= self.b or self.a <= other.b <= self.b):
-            return [self]
-
-        parts = []
-
-        cutter = min(self.a, other.a)
-        if cutter < other.a:
-            parts.append(Line(cutter, other.a - 1))
-            cutter = other.a
-
-        if self.b < other.a:
-            parts.append(Line(cutter, self.b))
-        elif other.b < self.b:
-            parts.append(Line(other.b + 1, self.b))
-
-        return parts
-
     def intersection(self, other: 'Line') -> list['Line']:
         """
-        >>>
+        >>> Line(-20,26).intersection(Line(-22,28))
+        [Line(-20,26)]
+        >>> Line(4,8).intersection(Line(2,6))
+        [Line(4,6)]
+        >>> Line(1,5).intersection(Line(2,3))
+        [Line(2,3)]
+        >>> Line(0,3).intersection(Line(1,5))
+        [Line(1,3)]
+        >>> Line(0,1).intersection(Line(2,3))
+        []
         """
+
+        a, b = max(self.a, other.a), min(self.b, other.b)
+        if a < b:
+            return [Line(a,b)]
+        else:
+            return []
+
 
 class Cube:
 
     def __init__(self, coords) -> None:
         self.coords = coords
 
-    def intersect(self, other: 'Cube') -> 'Cube':
-        intersections = []
+    def count(self):
+        """
+        >>> Cube(((10,12), (10,12), (10,12))).count()
+        27
+        """
+        x, y, z = self.coords
+        return (x[1] - x[0] + 1) * (y[1] - y[0] + 1) * (z[1] - z[0] + 1)
+
+    def __str__(self) -> str:
+        return f'Cube((({self.coords[0][0]},{self.coords[0][1]}),({self.coords[1][0]},{self.coords[1][1]}),({self.coords[2][0]},{self.coords[2][1]}))'
+
+    def __repr__(self) -> str:
+        return str(self)
+
+    def intersection(self, cube):
+        """
+        >>> Cube(((10,12),(10,12),(10, 12))).intersection(Cube(((11,13),(11,13),(11,13))))
+        [Cube(((11,12),(11,12),(11,12))]
+        """
+        coords = []
         for i in range(3):
             line1 = Line(self.coords[i][0], self.coords[i][1])
-            line2 = Line(other.coords[i][0], other.coords[i][1])
-            intersections.append(line1.intersection(line2))
-        return self
+            line2 = Line(cube.coords[i][0], cube.coords[i][1])
+
+            intersection = line1.intersection(line2)
+            if intersection:
+                coords.append((intersection[0].a, intersection[0].b))
+            else:
+                return []
+        return [Cube(coords)]
+
+
+class OnCube:
+
+    def __init__(self, cube: Cube) -> None:
+        self.cube = cube
+        self.offs = []
+
+    def turn_off(self, cube: Cube):
+        intersection = self.cube.intersection(cube)
+        self.offs += intersection
+
+    def count(self):
+
+        ret = self.cube.count()
+
+        for i in range(len(self.offs)):
+            ret -= self.offs[i].count()
+            for j in range(i):
+                intersection = self.offs[j].intersection(self.offs[i])
+                if intersection:
+                    ret += intersection[0].count()
+
+        return ret
+
 
 class Reactor2:
 
     def __init__(self) -> None:
         self.cubes = []
 
-    def switch(self, op, cube):
+    def switch(self, op, cube: Cube):
 
-        next = []
-        for [o, c] in self.cubes:
-            intersections = []
-            for i in range(3):
-                line1 = Line(c[i][0], c[i][1])
-                line2 = Line(cube[i][0], cube[i][1])
-                intersections.append(line1.diff(line2))
+        for c in self.cubes:
+            c.turn_off(cube)
 
-            for x in intersections[0]:
-                line2 = Line(c[0][0], c[0][1])
-                for line in line2.diff(x):
-                    for y in intersections[1]:
-                        for z in intersections[2]:
-                            next.append((o, [[line.a, line.b], [y.a, y.b], [z.a, z.b]]))
-
-            for y in intersections[1]:
-                line2 = Line(c[1][0], c[1][1])
-                for line in line2.diff(y):
-                    for x in intersections[0]:
-                        for z in intersections[2]:
-                            next.append((o, [[x.a, x.b], [line.a, line.b], [z.a, z.b]]))
-
-            for z in intersections[2]:
-                line2 = Line(c[2][0], c[2][1])
-                for line in line2.diff(z):
-                    for x in intersections[0]:
-                        for y in intersections[1]:
-                            next.append((o, [[x.a, x.b], [y.a, y.b], [line.a, line.b]]))
-
-            for x in intersections[0]:
-                for y in intersections[1]:
-                    for z in intersections[2]:
-                        next.append((o, [[x.a, x.b], [y.a, y.b], [z.a, z.b]]))
-
-        next.append((op, coordinates))
-
-        self.cubes = next
+        if op == 'on':
+            self.cubes.append(OnCube(cube))
 
     def on_count(self) -> int:
         ret = 0
-        for op, cube in self.cubes:
-            x, y, z = cube
-            if op == 'on':
-                ret += (x[1] - x[0]+1) * (y[1] - y[0]+1) * (z[1] - z[0]+1)
+        for c in self.cubes:
+            ret += c.count()
         return ret
 
 
 if __name__ == '__main__':
     print('Day 22')
-    with open('input2') as f:
+    with open('input4') as f:
         lines = [line.strip() for line in f.readlines()]
 
-    '''
-    reactor = Reactor()
+    old = Reactor()
+    reactor = Reactor2()
     for line in lines:
-        print(line)
         op, cubes = line.split(' ')
         coordinates = []
         for coord in cubes.split(','):
             axes, min_max = coord.split('=')
-            coordinates.append(list(map(int, min_max.split('..'))))
-        reactor.switch(op, coordinates)
-        print(reactor.on_count())
+            min_max = list(map(int, min_max.split('..')))
+            coordinates.append(min_max)
+
+        out = False
+        for i, min_max in enumerate(coordinates):
+            a, b = min_max
+            if a < -50 and b < -50:
+                out = True
+                continue
+            if a > 50 and b > 50:
+                out = True
+                continue
+
+            if a < -50:
+                a = -50
+            if b < -50:
+                b = -50
+            if a > 50:
+                a = 50
+            if b > 50:
+                b = 50
+
+            coordinates[i] = (a, b)
+
+        print(line)
+        if not out:
+            print(coordinates)
+            old.switch(op, coordinates)
+            reactor.switch(op, Cube(coordinates))
+
+            print('  ', old.on_count(), reactor.on_count())
+
+
+
+        # print(reactor.on_count())
 
     print(f'Part1: {reactor.on_count()}')
-    '''
 
     reactor = Reactor2()
     for line in lines:
-        print(line)
+        # print(line)
         op, cubes = line.split(' ')
         coordinates = []
         for coord in cubes.split(','):
             axes, min_max = coord.split('=')
             coordinates.append(list(map(int, min_max.split('..'))))
-        reactor.switch(op, coordinates)
-        print(reactor.on_count())
+        reactor.switch(op, Cube(coordinates))
+        #print(reactor.on_count())
 
+    # 1667280076479371 <-- too high
     print(f'Part2: {reactor.on_count()}')
