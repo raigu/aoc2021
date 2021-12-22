@@ -109,6 +109,23 @@ class Line:
 
         return parts
 
+    def intersection(self, other: 'Line') -> list['Line']:
+        """
+        >>>
+        """
+
+class Cube:
+
+    def __init__(self, coords) -> None:
+        self.coords = coords
+
+    def intersect(self, other: 'Cube') -> 'Cube':
+        intersections = []
+        for i in range(3):
+            line1 = Line(self.coords[i][0], self.coords[i][1])
+            line2 = Line(other.coords[i][0], other.coords[i][1])
+            intersections.append(line1.intersection(line2))
+        return self
 
 class Reactor2:
 
@@ -126,6 +143,27 @@ class Reactor2:
                 intersections.append(line1.diff(line2))
 
             for x in intersections[0]:
+                line2 = Line(c[0][0], c[0][1])
+                for line in line2.diff(x):
+                    for y in intersections[1]:
+                        for z in intersections[2]:
+                            next.append((o, [[line.a, line.b], [y.a, y.b], [z.a, z.b]]))
+
+            for y in intersections[1]:
+                line2 = Line(c[1][0], c[1][1])
+                for line in line2.diff(y):
+                    for x in intersections[0]:
+                        for z in intersections[2]:
+                            next.append((o, [[x.a, x.b], [line.a, line.b], [z.a, z.b]]))
+
+            for z in intersections[2]:
+                line2 = Line(c[2][0], c[2][1])
+                for line in line2.diff(z):
+                    for x in intersections[0]:
+                        for y in intersections[1]:
+                            next.append((o, [[x.a, x.b], [y.a, y.b], [line.a, line.b]]))
+
+            for x in intersections[0]:
                 for y in intersections[1]:
                     for z in intersections[2]:
                         next.append((o, [[x.a, x.b], [y.a, y.b], [z.a, z.b]]))
@@ -139,7 +177,7 @@ class Reactor2:
         for op, cube in self.cubes:
             x, y, z = cube
             if op == 'on':
-                ret += (x[1] - x[0]) * (y[1] - y[0]) * (z[1] - z[0])
+                ret += (x[1] - x[0]+1) * (y[1] - y[0]+1) * (z[1] - z[0]+1)
         return ret
 
 
