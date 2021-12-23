@@ -1,3 +1,4 @@
+import copy
 import sys
 
 
@@ -77,14 +78,131 @@ class Burrow:
         return burrow
 
 
+def is_amphipod(c: str) -> bool:
+    return c in ['A', 'B', 'C', 'D']
+
+
+def step_energy_of_aphipod(a: str) -> int:
+    map = {
+        'A': 1,
+        'B': 10,
+        'C': 100,
+        'D': 1000,
+    }
+    return map[a]
+
+
+def is_home(space, y1, x1) -> bool:
+    a = space[y1][x1]
+    if y1 > 1:  # at hole
+        i = 2 + (ord(a) - ord('A')) * 2
+        if i == x1:
+            return True
+
+    return False
+
+
+def all_possible_paths(space, y1, x1) -> list[list[list]]:
+    """
+    >>> list(all_possible_paths([['#', '#', '#', '#', '#'], ['#', 'B',' ', ' ', '#'], ['#', '#', '#', '#', '#']], 1, 1))
+    [[[0, 1]], [[0, 1], [0, 1]]]
+    >>> list(all_possible_paths([['#', '#', '#', '#'], ['#', ' ', '#', '#'], ['#', 'B',' ', '#'], ['#', '#', '#', '#']], 2, 1))
+    [[[-1, 0]], [[0, 1]]]
+    >>> list(all_possible_paths([['#', '#', '#', '#'], ['#', 'B',' ', '#'], ['#', '#', '#', '#']], 1, 1))
+    [[[0, 1]]]
+    """
+
+    # does not move if at home
+    if is_home(space, y1, x1):
+        raise StopIteration
+    # up, down, left, right
+    down = [1, 0]
+    up = [-1, 0]
+    directions = ([-1, 0], [1, 0], [0, -1], [0, 1])
+    for direction in directions:
+        y2 = y1 + direction[0]
+        x2 = x1 + direction[1]
+
+        if space[y2][x2] == ' ':  # empty, can move there
+            if direction == down:
+                # down movement is restricted
+                if not is_home(space, y1, x1):
+                    # does not go to other's hole
+                    continue
+            elif direction == up:
+                # does not move up if it is home and in place
+                if is_home(space, y1, x1):
+                    if space[y1 + 1][x1] in ['#', space[y1][x1]]:
+                        continue
+
+            next_space = copy.deepcopy(space)
+            a = next_space[y1][x1]
+            next_space[y1][x1] = 'V'  # mark visited
+            next_space[y2][x2] = a
+
+            yield [direction]
+
+            for alternatives in all_possible_paths(next_space, y2, x2):
+                yield [direction] + alternatives
+
+
+def print_space(space):
+    for layer in space:
+        print(''.join(layer))
+
+def space_hash(space):
+    return hash(''.join(''.join(layer) for layer in space))
+
+covered = set()
+
+def min_energy(space) -> int:
+    ret = 0
+
+    i = 1
+    while i < len(space) - 1:
+        j = 1
+        while j < len(space[0]) - 1:
+            if is_amphipod(space[i][j]):
+                y = i
+                x = j
+                for path in all_possible_paths(space, i, j):
+                    step_energy = step_energy_of_aphipod(space[i][j])
+                    energy = 0
+                    for step in path:
+                        y += step[0]
+                        x += step[1]
+                        energy += step_energy
+
+                    new = copy.deepcopy(space)
+                    new[y][x] = space[i][j]
+                    new[i][j] = ' '
+
+                    h = space_hash(new)
+                    if h not in covered:
+                        covered.add(h)
+                        print_space(new)
+
+                        m = min_energy(new)
+                        if m + energy < ret:
+                            ret = m + energy
+            j += 1
+        i += 1
+
+    return ret
+
+
 if __name__ == '__main__':
     print('Day 23')
 
     burrow = Burrow.from_file('input1')
-    burrow.print()
 
-    print(f'Part1: {burrow.min_energy()}')
-    print(f'Part2: {burrow.min_energy()}')
+    part1 = min_energy(burrow.space)
+
+    print(f'Part1: {part1}')
+
+    part2 = -1
+
+    print(f'Part2: {part2}')
 
 '''
 Part1 in R:
