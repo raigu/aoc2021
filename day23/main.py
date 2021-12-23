@@ -87,7 +87,7 @@ def neighbours(space):
                             # if starts to move out then move all the way out
                             while space[y-1][x] == '.':
                                 y -= 1
-                                energy = step_energy_of_aphipod(space[i][j])
+                                energy += step_energy_of_aphipod(space[i][j])
 
                         new = copy.deepcopy(space)
                         new[y][x] = space[i][j]
@@ -114,11 +114,11 @@ def solution(space, end_hash) -> dict:
             i = space_hash(n)
             if distances[i] > d + edge:
                 distances[i] = d + edge
+                if i == end_hash:
+                    print('Found: ', distances[i])
                 #print(d+edge)
                 if distances[i] < distances[end_hash]:
                     queue.put((distances[i], n))
-                else:
-                    print('skip :)')
 
     return distances
 
@@ -136,13 +136,13 @@ def load_space(filename):
 if __name__ == '__main__':
     print('Day 23')
 
-    space = load_space('sample_part1')
+    space = load_space('input_part2')
 
     print("Initial space:")
     print_space(space)
 
 
-    final = load_space('final_part1')
+    final = load_space('final_part2')
     h = space_hash(final)
 
     distances = solution(space, h)
