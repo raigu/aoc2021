@@ -1,45 +1,4 @@
 
-class Reactor:
-
-    def __init__(self) -> None:
-        self.cubes = set()
-
-    def switch(self, op, coordinates):
-
-        for i in range(len(coordinates)):
-            if coordinates[i][0] < -50:
-                coordinates[i][0] = 50
-            if coordinates[i][1] > 50:
-                coordinates[i][1] = 50
-
-        [x1, x2], [y1, y2], [z1, z2] = coordinates
-
-        while x1 <= x2:
-            if x1 < -50:
-                x1 = -50
-            y1 = coordinates[1][0]
-            while y1 <= y2:
-                if y1 < -50 or 50 < y1:
-                    y1 = y2
-
-                z1 = coordinates[2][0]
-                while z1 <= z2:
-                    if z1 < -50 or 50 < z1:
-                        z1 = z2
-
-                    cube = (x1, y1, z1)
-                    if op == 'on':
-                        # print(cube)
-                        self.cubes.add(cube)
-                    elif cube in self.cubes:
-                        self.cubes.remove(cube)
-                    z1 += 1
-                y1 += 1
-            x1 += 1
-
-    def on_count(self) -> int:
-        return len(self.cubes)
-
 class Line:
 
     def __init__(self, a, b):
@@ -58,6 +17,10 @@ class Line:
 
     def intersection(self, other: 'Line') -> list['Line']:
         """
+        >>> Line(-28,26).intersection(Line(-38,-28))
+        [Line(-28,-28)]
+        >>> Line(-27,23).intersection(Line(-40,-22))
+        [Line(-27,-22)]
         >>> Line(-20,26).intersection(Line(-22,28))
         [Line(-20,26)]
         >>> Line(4,8).intersection(Line(2,6))
@@ -71,8 +34,8 @@ class Line:
         """
 
         a, b = max(self.a, other.a), min(self.b, other.b)
-        if a < b:
-            return [Line(a,b)]
+        if a <= b:
+            return [Line(a, b)]
         else:
             return []
 
@@ -82,6 +45,12 @@ class Cube:
     def __init__(self, coords) -> None:
         self.coords = coords
 
+    def __str__(self) -> str:
+        return f'Cube((({self.coords[0][0]},{self.coords[0][1]}),({self.coords[1][0]},{self.coords[1][1]}),({self.coords[2][0]},{self.coords[2][1]}))'
+
+    def __repr__(self) -> str:
+        return str(self)
+
     def count(self):
         """
         >>> Cube(((10,12), (10,12), (10,12))).count()
@@ -89,12 +58,6 @@ class Cube:
         """
         x, y, z = self.coords
         return (x[1] - x[0] + 1) * (y[1] - y[0] + 1) * (z[1] - z[0] + 1)
-
-    def __str__(self) -> str:
-        return f'Cube((({self.coords[0][0]},{self.coords[0][1]}),({self.coords[1][0]},{self.coords[1][1]}),({self.coords[2][0]},{self.coords[2][1]}))'
-
-    def __repr__(self) -> str:
-        return str(self)
 
     def intersection(self, cube):
         """
@@ -122,28 +85,27 @@ class OnCube:
 
     def turn_off(self, cube: Cube):
         intersection = self.cube.intersection(cube)
-        self.offs += intersection
+        for i in intersection:
+            for j in range(len(self.offs)):
+                self.offs[j].turn_off(i)
+
+            self.offs.append(OnCube(i))
 
     def count(self):
-
         ret = self.cube.count()
 
         for i in range(len(self.offs)):
             ret -= self.offs[i].count()
-            for j in range(i):
-                intersection = self.offs[j].intersection(self.offs[i])
-                if intersection:
-                    ret += intersection[0].count()
 
         return ret
 
 
-class Reactor2:
+class Reactor:
 
     def __init__(self) -> None:
         self.cubes = []
 
-    def switch(self, op, cube: Cube):
+    def step(self, op, cube: Cube):
 
         for c in self.cubes:
             c.turn_off(cube)
@@ -160,11 +122,10 @@ class Reactor2:
 
 if __name__ == '__main__':
     print('Day 22')
-    with open('input4') as f:
+    with open('input') as f:
         lines = [line.strip() for line in f.readlines()]
 
-    old = Reactor()
-    reactor = Reactor2()
+    reactor = Reactor()
     for line in lines:
         op, cubes = line.split(' ')
         coordinates = []
@@ -194,30 +155,18 @@ if __name__ == '__main__':
 
             coordinates[i] = (a, b)
 
-        print(line)
         if not out:
-            print(coordinates)
-            old.switch(op, coordinates)
-            reactor.switch(op, Cube(coordinates))
-
-            print('  ', old.on_count(), reactor.on_count())
-
-
-
-        # print(reactor.on_count())
+            reactor.step(op, Cube(coordinates))
 
     print(f'Part1: {reactor.on_count()}')
 
-    reactor = Reactor2()
+    reactor = Reactor()
     for line in lines:
-        # print(line)
         op, cubes = line.split(' ')
         coordinates = []
         for coord in cubes.split(','):
             axes, min_max = coord.split('=')
             coordinates.append(list(map(int, min_max.split('..'))))
-        reactor.switch(op, Cube(coordinates))
-        #print(reactor.on_count())
+        reactor.step(op, Cube(coordinates))
 
-    # 1667280076479371 <-- too high
     print(f'Part2: {reactor.on_count()}')
