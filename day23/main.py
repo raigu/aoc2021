@@ -1,3 +1,4 @@
+import copy
 import sys
 from collections import defaultdict
 from queue import PriorityQueue
@@ -11,10 +12,105 @@ def space_hash(space):
     return hash(''.join(''.join(layer) for layer in space))
 
 
+def is_amphipod(c: str) -> bool:
+    return c in ['A', 'B', 'C', 'D']
+
+def is_above_home(c, x):
+    """
+    >>> is_above_home('A', 3)
+    True
+    >>> is_above_home('B', 5)
+    True
+    >>> is_above_home('A', 2)
+    False
+    """
+    return x == 3 + (ord(c) - ord('A')) * 2
+
+def is_home(space, y1, x1) -> bool:
+    a = space[y1][x1]
+    if not is_above_home(a, x1):
+        return False
+
+    while space[y1 + 1][x1] != '#':
+        y1 += 1
+        if space[y1][x1] != a:
+            return False
+
+    return True
+
+def step_energy_of_aphipod(a: str) -> int:
+    map = {
+        'A': 1,
+        'B': 10,
+        'C': 100,
+        'D': 1000,
+    }
+    return map[a]
+
 def neighbours(space):
+    ret = []
 
+    down = [1, 0]
+    up = [-1, 0]
+    left = [0, -1]
+    right = [0, 1]
 
-    return [(space, 0)]
+    i = 1
+    while i < len(space) - 1:
+        j = 1
+        while j < len(space[0]) - 1:
+            if is_amphipod(space[i][j]) and not is_home(space, i, j):
+                directions = [up, down, left, right]
+                for direction in directions:
+                    y = i + direction[0]
+                    x = j + direction[1]
+
+                    if space[y][x] == '.':
+                        energy = step_energy_of_aphipod(space[i][j])
+                        if direction == down:
+                            # Amphipods will never move from the hallway into a room unless that room is their destination room ...
+                            if not is_above_home(space[i][j], x):
+                                continue
+
+                            # move as down as possible
+                            while space[y + 1][x] == '.':
+                                y += 1
+                                energy += step_energy_of_aphipod(space[i][j])
+
+                            # ... and that room contains no amphipods which do not also have that room as their own destination.
+                            if not (space[y + 1][x] == '#' or space[y + 1][x] == space[i][j]):
+                                continue
+                        elif direction == up:
+                            # if starts to move out then move all the way out
+                            while space[y-1][x] == '.':
+                                y += 1
+                                energy = step_energy_of_aphipod(space[i][j])
+
+                        new = copy.deepcopy(space)
+                        new[y][x] = space[i][j]
+                        new[i][j] = '.'
+
+                        ret.append([new, energy])
+            j += 1
+        i += 1
+
+    if ret == sys.maxsize:  # no moves, is it final?
+        suits = True
+        i = 0
+        while i < 4 and suits:
+            c = ord('A') + i
+            x = 3 + ((c - ord('A')) * 2)
+            y = 2
+            while y < len(space) - 1 and suits:
+                if ord(space[y][x]) != c:
+                    suits = False
+                else:
+                    y += 1
+            i += 1
+        if suits:
+            return 0  # yee! final!
+
+    return ret
 
 def solution(space) -> dict:
     distances = defaultdict(lambda: sys.maxsize)
@@ -46,14 +142,14 @@ def load_space(filename):
 if __name__ == '__main__':
     print('Day 23')
 
-    space = load_space('input1')
+    space = load_space('input_part2')
 
     print("Initial space:")
     print_space(space)
 
     distances = solution(space)
 
-    final = load_space('final1')
+    final = load_space('final_part2')
 
     h = space_hash(final)
     print('Part1: ', distances[h])
