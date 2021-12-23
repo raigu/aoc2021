@@ -27,6 +27,9 @@ def is_above_home(c, x):
     return x == 3 + (ord(c) - ord('A')) * 2
 
 def is_home(space, y1, x1) -> bool:
+    if y1 < 2:
+        return False # in a hallway
+
     a = space[y1][x1]
     if not is_above_home(a, x1):
         return False
@@ -83,7 +86,7 @@ def neighbours(space):
                         elif direction == up:
                             # if starts to move out then move all the way out
                             while space[y-1][x] == '.':
-                                y += 1
+                                y -= 1
                                 energy = step_energy_of_aphipod(space[i][j])
 
                         new = copy.deepcopy(space)
@@ -94,37 +97,28 @@ def neighbours(space):
             j += 1
         i += 1
 
-    if ret == sys.maxsize:  # no moves, is it final?
-        suits = True
-        i = 0
-        while i < 4 and suits:
-            c = ord('A') + i
-            x = 3 + ((c - ord('A')) * 2)
-            y = 2
-            while y < len(space) - 1 and suits:
-                if ord(space[y][x]) != c:
-                    suits = False
-                else:
-                    y += 1
-            i += 1
-        if suits:
-            return 0  # yee! final!
-
     return ret
 
-def solution(space) -> dict:
+def solution(space, end_hash) -> dict:
     distances = defaultdict(lambda: sys.maxsize)
     s = space_hash(space)  # start
+    distances[end_hash] = 100000 # lets look for solution below this number
     distances[s] = 0  # distance from start to start is known
     queue = PriorityQueue()
     queue.put((0, space))
     while not queue.empty():
         d, v = queue.get()
+        #print("NEW");        print_space(v)
         for n, edge in neighbours(v):
+            #print("----");           print_space(n);
             i = space_hash(n)
             if distances[i] > d + edge:
                 distances[i] = d + edge
-                queue.put((distances[i], n))
+                #print(d+edge)
+                if distances[i] < distances[end_hash]:
+                    queue.put((distances[i], n))
+                else:
+                    print('skip :)')
 
     return distances
 
@@ -142,15 +136,15 @@ def load_space(filename):
 if __name__ == '__main__':
     print('Day 23')
 
-    space = load_space('input_part2')
+    space = load_space('sample_part1')
 
     print("Initial space:")
     print_space(space)
 
-    distances = solution(space)
 
-    final = load_space('final_part2')
-
+    final = load_space('final_part1')
     h = space_hash(final)
+
+    distances = solution(space, h)
     print('Part1: ', distances[h])
 
