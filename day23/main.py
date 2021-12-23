@@ -64,7 +64,8 @@ def neighbours(space):
                 if i == 1: # in the hall
                     amphipods_home.put((-step_energy_of_aphipod(c), (c,i,j)))
                 else: # in the hole
-                    amphipods_out.put((step_energy_of_aphipod(c), (c, i, j)))
+                    if space[i-1][j] == '.': # can move up?
+                        amphipods_out.put((step_energy_of_aphipod(c), (c, i, j)))
             j += 1
         i += 1
 
@@ -79,17 +80,21 @@ def neighbours(space):
         x = j
         energy = 0
         direction = -1 if home_index < x else 1
-        while home_index != x and space[y][x+direction] == '.':
+        blocked = False
+        while home_index != x and not blocked:
             x += direction
             energy += step_energy_of_aphipod(c)
-        if space[y][x] == '.' or (y == i and x == j):  # at the top of hole.
+            if space[y][x] != '.':
+                blocked = True
+
+        if not blocked:  # at the top of hole.
             # move as down as possible
             while space[y + 1][x] == '.':
                 y += 1
                 energy += step_energy_of_aphipod(c)
 
             # ... and that room contains no amphipods which do not also have that room as their own destination.
-            if space[y + 1][x] == '#' or space[y + 1][x] == space[i][j]:
+            if space[y + 1][x] == '#' or space[y + 1][x] == c:
                 new = copy.deepcopy(space)
                 new[y][x] = c
                 new[i][j] = '.'
@@ -98,44 +103,43 @@ def neighbours(space):
 
     while not amphipods_out.empty():
         (e, (c, i, j)) = amphipods_out.get()
-        if space[i - 1][j] == '.':  # can move up
-            energy = 0
-            # move all the way out
-            y = i
-            x = j
-            while space[y - 1][x] == '.':
-                y -= 1
-                energy += step_energy_of_aphipod(c)
+        energy = 0
+        # move all the way out
+        y = i
+        x = j
+        while space[y - 1][x] == '.':
+            y -= 1
+            energy += step_energy_of_aphipod(c)
 
-            # when reached out, move as far left as you can and produce possible outcomes
-            x2 = x
-            left_energy = energy
-            while space[y][x2 - 1] == '.':
-                x2 -= 1
-                left_energy += step_energy_of_aphipod(c)
+        # when reached out, move as far left as you can and produce possible outcomes
+        x2 = x
+        left_energy = energy
+        while space[y][x2 - 1] == '.':
+            x2 -= 1
+            left_energy += step_energy_of_aphipod(c)
 
-                # do not stop on top of hole:
-                if x2 not in [3,5,7,9]:
-                    new = copy.deepcopy(space)
-                    new[y][x2] = space[i][j]
-                    new[i][j] = '.'
+            # do not stop on top of hole:
+            if x2 not in [3,5,7,9]:
+                new = copy.deepcopy(space)
+                new[y][x2] = space[i][j]
+                new[i][j] = '.'
 
-                    ret.append([new, left_energy])
+                ret.append([new, left_energy])
 
-            # when reached out, move as right as you can and produce possible outcomes
-            x2 = x
-            right_energy = energy
-            while space[y][x2 + 1] == '.':
-                x2 += 1
-                right_energy += step_energy_of_aphipod(c)
+        # when reached out, move as right as you can and produce possible outcomes
+        x2 = x
+        right_energy = energy
+        while space[y][x2 + 1] == '.':
+            x2 += 1
+            right_energy += step_energy_of_aphipod(c)
 
-                # do not stop on top of hole:
-                if x2 not in [3, 5, 7, 9]:
-                    new = copy.deepcopy(space)
-                    new[y][x2] = c
-                    new[i][j] = '.'
+            # do not stop on top of hole:
+            if x2 not in [3, 5, 7, 9]:
+                new = copy.deepcopy(space)
+                new[y][x2] = c
+                new[i][j] = '.'
 
-                    ret.append([new, right_energy])
+                ret.append([new, right_energy])
 
     return ret
 
@@ -148,9 +152,9 @@ def solution(space, end_hash) -> dict:
     queue.put((0, space))
     while not queue.empty():
         d, v = queue.get()
-        #print("\nNEW");        print_space(v)
+        print("\nNEW");        print_space(v)
         for n, edge in neighbours(v):
-            #print("----");           print_space(n);
+            print("----");           print_space(n);
             i = space_hash(n)
             if distances[i] > d + edge:
                 distances[i] = d + edge
@@ -185,6 +189,7 @@ if __name__ == '__main__':
     final = load_space('final_part2')
     h = space_hash(final)
 
+    # 46148 <- too low
     distances = solution(space, h)
     print('Part1: ', distances[h])
 
